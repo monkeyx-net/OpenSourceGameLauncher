@@ -7,7 +7,7 @@ This is a basic template for use in portmaster
 
 makefile runs strip automatically to reduce file size.
 
-![](imgui controls v6 - Xbox.png?raw=true)
+![COntrols]('imgui controls v6 - Xbox.png'?raw=true)
 
 TODO
 - [x] Create template
