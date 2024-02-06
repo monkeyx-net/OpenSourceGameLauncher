@@ -1,7 +1,15 @@
 ## Welcome
 
 
-To build this version run make in src
+To build this version run make in src.
+
+Changes can be made in main.cpp the key section that create the windows
+
+```ImGui::Begin("Portmaster Test",&p_open, window_flags);```
+
+This closes the window created
+
+```ImGui::End();```
 
 This is a basic template for use in portmaster
 
