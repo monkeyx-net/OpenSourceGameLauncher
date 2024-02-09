@@ -96,7 +96,7 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
-    //Read Ip address and instructions before the starting the loop
+    //Read ip and instructions files before the starting the loop
     std::string ip_load=read_file(std::ifstream("ip.txt"));
     std::string instructions=read_file(std::ifstream("instructions.txt"));
 
@@ -166,13 +166,13 @@ int main(int, char**)
 
          if (show_ap_address_window)
         {
-            ImGui::Begin("Another Window", &show_ap_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
-            ImGui::Text("Server IP Adress :-");
+            ImGui::Begin("Change IP Address", &show_ap_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+             ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
+            ImGui::Text("Set Server IP Adress:-");
             ImGui::DragInt4("", vec4i, 1, 1, 255);
             //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-            if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+            if (ImGui::Button("Save IP Address Press R2",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
             {
                 std::ostringstream stream;
                 for (size_t i = 0; i < sizeof(vec4i)/sizeof(vec4i[0]); ++i)
@@ -192,7 +192,7 @@ int main(int, char**)
             {
                 //show_ap_address_window = false;
                 done = true;    
-                return 0;   
+                return 121;   
              }
             ImGui::End();
         }
