@@ -89,7 +89,7 @@ int main(int, char**)
     ImGui_ImplSDLRenderer2_Init(renderer);
 
     //Using open source Roboto Medium. Remark the line below to use defaul 13 point terminal font.
-    io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 24.0f);
+    io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 18.0f);
     
     // Our state
    
@@ -101,10 +101,12 @@ int main(int, char**)
     std::string instructions=read_file(std::ifstream("instructions.txt"));
 
     // Vector for IP Address Input  ImGui::DragInt4
-    static int vec4i[] = { 172, 16, 8, 15 }; 
+    static int vec4i[] = { 127, 0, 0, 1 }; 
 
     // Main loop
     bool done = false;
+    bool main_window = true;
+    bool show_ap_address_window = false;
     while (!done)
     {
         // Poll and handle events (inputs, window resize, etc.)
@@ -128,8 +130,7 @@ int main(int, char**)
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-
-        // 2. Show a simple window using a Begin/End pair to create a named window.
+        if (main_window)
         {
             bool p_open = true;
             // Flags for some reason having empty flags removes the collapse button, which is why I look at them!
@@ -137,11 +138,41 @@ int main(int, char**)
             ImGui::Begin("Portmaster Test",&p_open, window_flags);
            // static char str0[128] = "Edit Text Test";
            // ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
-            ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
+       
+            // Creates space
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            ImGui::TextWrapped("%s",instructions.c_str());
+            // Creates space
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
+            {
+                done = true;
+                return 0;
+
+            }
+            ImGui::SameLine();
+             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+            {
+                //done = true;
+                //return 121;   
+                main_window = false;
+                show_ap_address_window = true;
+
+            }
+           
+            ImGui::End();
+        }
+
+
+         if (show_ap_address_window)
+        {
+            ImGui::Begin("Another Window", &show_ap_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
             ImGui::Text("Server IP Adress :-");
             ImGui::DragInt4("", vec4i, 1, 1, 255);
             //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-            if (ImGui::Button("Save IP Address",ImVec2(347,50)))
+            if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
             {
                 std::ostringstream stream;
                 for (size_t i = 0; i < sizeof(vec4i)/sizeof(vec4i[0]); ++i)
@@ -156,24 +187,13 @@ int main(int, char**)
                 ip_load = ip_string;
                 //printf("%d.%d.%d.%d", vec4i[0],vec4i[1],vec4i[2],vec4i[3]);
             }
-            // Creates space
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            ImGui::TextWrapped("%s",instructions.c_str());
-            // Creates space
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
+            if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
             {
-                done = true;
-                //return 1;
-
-            }
-            ImGui::SameLine();
-             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-            {
-                done = true;
-                return 121;        
-            }
-           
+                //show_ap_address_window = false;
+                done = true;    
+                return 0;   
+             }
             ImGui::End();
         }
 
