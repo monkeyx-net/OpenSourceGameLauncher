@@ -161,14 +161,14 @@ int main(int, char**)
             ImGui::TextWrapped("%s",instructions.c_str());
             // Creates space
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("A Button",ImVec2(200,50)))
+            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
             {
                 done = true;
                 //return 1;
 
             }
             ImGui::SameLine();
-             if (ImGui::Button("B Button",ImVec2(200,50)))
+             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
             {
                 done = true;
                 return 121;        
