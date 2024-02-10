@@ -56,8 +56,9 @@ int main(int, char**)
 #endif
 
     // Create window with SDL_Renderer graphics context
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("Set IP Address for game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 720, 720, window_flags);
+    //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* window = SDL_CreateWindow("Set IP Address for game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1280, window_flags);
     if (window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -129,6 +130,8 @@ int main(int, char**)
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 
         if (main_window)
         {
@@ -136,8 +139,8 @@ int main(int, char**)
             // Flags for some reason having empty flags removes the collapse button, which is why I look at them!
             //ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
             ImGui::Begin("Portmaster Test",&p_open, window_flags);
-           // static char str0[128] = "Edit Text Test";
-           // ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
+            //static char str0[128] = "Edit Text Test";
+            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
        
             // Creates space
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
