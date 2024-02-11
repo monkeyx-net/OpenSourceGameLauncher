@@ -2,3 +2,5 @@
 *.o
 src/imgui_demo
 .vscode/tasks.json
+.vscode/launch.json
+.vscode/settings.json
