@@ -179,8 +179,8 @@ int my_image_width, my_image_height;
     // Add error checking and default to system font.
     io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", 18.0f);
     
-    // Colour state
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Colour state for fillrecct
+    //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
     //Read ip and instructions files before the starting the loop
@@ -201,8 +201,8 @@ int my_image_width, my_image_height;
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         SDL_Event event;
 
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+       // SDL_RenderCopy(renderer, texture, NULL, NULL);
+       // SDL_RenderPresent(renderer);
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
@@ -291,11 +291,11 @@ int my_image_width, my_image_height;
 
 // Demonstrate create a window with multiple child windows.
 {
+    ImGui::SetNextWindowBgAlpha(0.15f);
      bool p_open = true;
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Example: Simple layout", &p_open, ImGuiWindowFlags_MenuBar))
+    if (ImGui::Begin("Portmaster layout?", &p_open, ImGuiWindowFlags_MenuBar))
     {
-//        IMGUI_DEMO_MARKER("Examples/Simple layout");
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -310,7 +310,7 @@ int my_image_width, my_image_height;
         static int selected = 0;
         {
            ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-           std::string texts[3] = {"Game Instructions", "View Read Me", "Visit Author"};
+           std::string texts[4] = {"Game Instructions", "Screenshot" ,"License", "Debug Info"};
 
 //            for (int i : texts)
            for (int i = 0; i < 3; i++)
@@ -368,8 +368,10 @@ int my_image_width, my_image_height;
         // Rendering
         ImGui::Render();
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        //Background Fill Colour
+        //SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
         SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
         SDL_RenderPresent(renderer);
     }
