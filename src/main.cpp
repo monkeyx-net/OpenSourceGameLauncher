@@ -42,7 +42,31 @@ std::string read_file(std::ifstream in_text )
   return all_lines;
 }
 
-bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& width, int& height, SDL_Renderer* renderer) {
+// Run system command and capture output
+
+std::string exec(const char* cmd) {
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    } catch (...) {
+        pclose(pipe);
+        throw;
+    }
+    pclose(pipe);
+    return result;
+}
+
+
+
+
+// Load texture for IMGUI
+bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& width, int& height, SDL_Renderer* renderer) 
+{
     int channels;
     unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
 
@@ -80,6 +104,7 @@ int main(int, char**)
     bool done = false;
     bool main_window = true;
     bool show_ap_address_window = false;
+    bool ret = false;
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -117,14 +142,18 @@ int my_image_width, my_image_height;
     }
 
 
-bool ret = LoadTextureFromFile("Assets/screenshot.png", &my_texture, my_image_width, my_image_height, renderer);
+    if (ret == LoadTextureFromFile("Assets/screenshot.png", &my_texture, my_image_width, my_image_height, renderer))
+    {
+        printf("Error: SDL_CreateWindow():");
+        return false;
+    }
 
-
+    
 
     //setup image
     IMG_Init(IMG_INIT_PNG);
-    texture = IMG_LoadTexture(renderer, "Assets/battlezone.jpg");
-
+    texture = IMG_LoadTexture(renderer, "Assets/battlezone.png");
+    
     //SDL_RendererInfo info;
     //SDL_GetRendererInfo(renderer, &info);
     //SDL_Log("Current SDL_Renderer: %s", info.name);
@@ -147,6 +176,7 @@ bool ret = LoadTextureFromFile("Assets/screenshot.png", &my_texture, my_image_wi
     ImGui_ImplSDLRenderer2_Init(renderer);
 
     //Using open source Roboto Medium. Remark the line below to use defaul 13 point terminal font.
+    // Add error checking and default to system font.
     io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", 18.0f);
     
     // Colour state
@@ -313,9 +343,12 @@ bool ret = LoadTextureFromFile("Assets/screenshot.png", &my_texture, my_image_wi
                 {
                     ImGui::Text("ID: 0123456789");
 
-ImGui::Text("pointer = %p", my_texture);
-ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-ImGui::Image((void*) my_texture, ImVec2(my_image_width, my_image_height));
+                   
+
+                    ImGui::Text("pointer = %p", my_texture);
+                    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+                    ImGui::Image((void*) my_texture, ImVec2(my_image_width, my_image_height));
+                    
 
                     ImGui::EndTabItem();
                 }
