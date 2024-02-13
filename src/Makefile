@@ -33,7 +33,7 @@ LIBS =
 
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "Linux"
-	LIBS += -lSDL2_image -lGL -ldl `sdl2-config --libs`
+	LIBS += -lSDL2_image -lSDL2_mixer -lGL -ldl `sdl2-config --libs`
 
 	CXXFLAGS += `sdl2-config --cflags`
 	CFLAGS = $(CXXFLAGS)

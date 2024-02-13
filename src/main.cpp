@@ -16,6 +16,7 @@
 #include "imgui_impl_sdlrenderer2.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -62,8 +63,6 @@ std::string exec(const char* cmd) {
 }
 
 
-
-
 // Load texture for IMGUI
 bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& width, int& height, SDL_Renderer* renderer) 
 {
@@ -102,11 +101,13 @@ int main(int, char**)
     SDL_Texture *texture = NULL;
     //SDL_Renderer *renderer = NULL;
     bool done = false;
-    bool main_window = true;
+   // bool main_window = true;
     bool show_ap_address_window = false;
-    bool ret = false;
+    bool sshot = false;
+    Mix_Chunk* gHigh = NULL;
+
     // Setup SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
         return -1;
@@ -123,8 +124,8 @@ int my_image_width, my_image_height;
     #endif
 
     // Create window with SDL_Renderer graphics context
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
+    //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window* window = SDL_CreateWindow("Set IP Address for game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1280, window_flags);
     if (window == nullptr)
     {
@@ -142,7 +143,7 @@ int my_image_width, my_image_height;
     }
 
 
-    if (ret == LoadTextureFromFile("Assets/screenshot.png", &my_texture, my_image_width, my_image_height, renderer))
+    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &my_texture, my_image_width, my_image_height, renderer))
     {
         printf("Error: SDL_CreateWindow():");
         return false;
@@ -151,9 +152,33 @@ int my_image_width, my_image_height;
     
 
     //setup image
-    IMG_Init(IMG_INIT_PNG);
-    texture = IMG_LoadTexture(renderer, "Assets/battlezone.png");
-    
+
+     //Initialize PNG loading
+    int imgFlags = IMG_INIT_PNG;
+    if( !( IMG_Init( imgFlags ) & imgFlags ) )
+    {
+        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+        return false;
+    }
+    texture = IMG_LoadTexture(renderer, "Assets/Images/battlezone.png");
+
+
+    //Setup Sound
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+    gHigh = Mix_LoadWAV( "Assets/Sounds/shoot.wav" );
+    if( gHigh == NULL )
+    {
+        printf( "Failed to load sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+
+
+
     //SDL_RendererInfo info;
     //SDL_GetRendererInfo(renderer, &info);
     //SDL_Log("Current SDL_Renderer: %s", info.name);
@@ -181,7 +206,7 @@ int my_image_width, my_image_height;
     
     // Colour state for fillrecct
     //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    //Default Font COlour
+    //Default Font Colour
     ImGuiStyle* style = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
 
@@ -189,6 +214,10 @@ int my_image_width, my_image_height;
     //Read ip and instructions files before the starting the loop
     std::string ip_load=read_file(std::ifstream("ip.txt"));
     std::string instructions=read_file(std::ifstream("instructions.txt"));
+
+    std::string file_debug = exec("file imgui-demo");
+    std::string ldd_debug = exec("ldd imgui-demo");
+    std::string log_debug=read_file(std::ifstream("log.txt"));
 
     // Vector for IP Address Input  ImGui::DragInt4
     static int vec4i[] = { 127, 0, 0, 1 }; 
@@ -221,10 +250,8 @@ int my_image_width, my_image_height;
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
  
-        //Full Screen IMGUI window
-        //ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-        //ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-
+     
+/*
         if (main_window)
         {
             bool p_open = true;
@@ -258,7 +285,7 @@ int my_image_width, my_image_height;
             ImGui::End();
         }
 
-
+*/
          if (show_ap_address_window)
         {
             ImGui::Begin("Change IP Address", &show_ap_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -292,11 +319,16 @@ int my_image_width, my_image_height;
             ImGui::End();
         }
 
+
 // Demonstrate create a window with multiple child windows.
 {
-    ImGui::SetNextWindowBgAlpha(0.15f);
      bool p_open = true;
-    ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+    //Full Screen IMGUI window
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    ImGui::SetNextWindowBgAlpha(0.15f);
+
+  //  ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Portmaster layout?", &p_open, ImGuiWindowFlags_MenuBar))
     {
         if (ImGui::BeginMenuBar())
@@ -313,15 +345,14 @@ int my_image_width, my_image_height;
         static int selected = 0;
         {
            ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-           std::string texts[4] = {"Game Instructions", "Screenshot" ,"License", "Debug Info"};
+           std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
 
-//            for (int i : texts)
-           for (int i = 0; i < 3; i++)
+          //  for (int i : texts)
+           for (int i = 0; i < 5; i++)
             {
                 // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                 char label[128];
-               sprintf(label, texts[i].c_str());
-                //sprintf(label, "TEst");
+                sprintf(label, texts[i].c_str());
                 if (ImGui::Selectable(label, selected == i))
                     selected = i;
             }
@@ -335,24 +366,63 @@ int my_image_width, my_image_height;
             ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
             ImGui::Text("MyObject: %d", selected);
             ImGui::Separator();
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+            {
+                 Mix_PlayChannel( -1, gHigh, 0 );
+
+            }
+       
+
             if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
             {
+
                 if (ImGui::BeginTabItem("Description"))
                 {
-                    ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
+                
+                    ImGui::TextWrapped("file output: %s", file_debug.c_str());
+                    ImGui::Separator();
+                    ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
+                    ImGui::Separator();
+                    ImGui::TextWrapped("log output: %s", log_debug.c_str());
+
+
+                  
                     ImGui::EndTabItem();
+                    if (selected ==4)
+                    {
+            //static char str0[128] = "Edit Text Test";
+            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
+       
+            // Creates space
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            ImGui::TextWrapped("%s",instructions.c_str());
+            // Creates space
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
+            {
+                done = true;
+                return 0;
+
+            }
+            ImGui::SameLine();
+             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+            {
+                //done = true;
+                //return 121;   
+              //  main_window = false;
+                show_ap_address_window = true;
+                Mix_PlayChannel( -1, gHigh, 0 );
+
+            }
+                    }
                 }
                 if (ImGui::BeginTabItem("Details"))
                 {
+                    // Load screenshot image.
                     ImGui::Text("ID: 0123456789");
-
-                   
-
                     ImGui::Text("pointer = %p", my_texture);
                     ImGui::Text("size = %d x %d", my_image_width, my_image_height);
                     ImGui::Image((void*) my_texture, ImVec2(my_image_width, my_image_height));
-                    
-
                     ImGui::EndTabItem();
                 }
                 ImGui::EndTabBar();
@@ -383,8 +453,11 @@ int my_image_width, my_image_height;
     ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
+    Mix_FreeChunk( gHigh );
+    gHigh = NULL;
 
-     SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(texture);
+    Mix_Quit();
     IMG_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
