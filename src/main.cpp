@@ -181,6 +181,9 @@ int my_image_width, my_image_height;
     
     // Colour state for fillrecct
     //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    //Default Font COlour
+    ImGuiStyle* style = &ImGui::GetStyle();
+    style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
 
 
     //Read ip and instructions files before the starting the loop

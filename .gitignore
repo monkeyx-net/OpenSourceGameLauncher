@@ -1,4 +1,4 @@
 *~
 *.o
-src/imgui_demo
+src/imgui-demo
 .vscode/
