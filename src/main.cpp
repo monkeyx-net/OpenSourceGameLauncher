@@ -324,11 +324,11 @@ int my_image_width, my_image_height;
 {
      bool p_open = true;
     //Full Screen IMGUI window
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-        ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::SetNextWindowBgAlpha(0.15f);
 
-  //  ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+     //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Portmaster layout?", &p_open, ImGuiWindowFlags_MenuBar))
     {
         if (ImGui::BeginMenuBar())
