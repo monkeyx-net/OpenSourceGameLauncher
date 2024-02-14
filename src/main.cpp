@@ -1,19 +1,15 @@
-// Dear ImGui: standalone example application for SDL2 + SDL_Renderer
-// (SDL is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
+//Add mouse cursor.
+#define SDL_SIM_CURSOR_COMPILE 1
 
-// Learn about Dear ImGui:
-// - FAQ                  https://dearimgui.com/faq
-// - Getting Started      https://dearimgui.com/getting-started
-// - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
-// - Introduction, links and more at the top of imgui.cpp
-
-// Important to understand: SDL_Renderer is an _optional_ component of SDL2.
-// For a multi-platform app consider using e.g. SDL+DirectX on Windows and SDL+OpenGL on Linux/OSX.
+//Need to load screensht images to IMGUI windows
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+//IMGUI libraries to support SDL2 rendering
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
+#include "main.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -113,7 +109,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    
+    SDL_SIM_MouseInit();
     SDL_Texture* tex_screenshot;
     int my_image_width, my_image_height;
 
@@ -141,7 +137,7 @@ int main(int argc, char *argv[])
         SDL_Log("Error creating SDL_Renderer!");
         return 0;
     }
-
+    SDL_SIM_Set_Renderer(renderer);
 
     if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, renderer))
     {
@@ -440,6 +436,7 @@ int main(int argc, char *argv[])
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         //Background Fill Colour
         //SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        SDL_SIM_RenderCursor(NULL);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
@@ -452,7 +449,7 @@ int main(int argc, char *argv[])
     ImGui::DestroyContext();
     Mix_FreeChunk( gHigh );
     gHigh = NULL;
-
+	SDL_SIM_MouseQuit();
     SDL_DestroyTexture(texture);
     Mix_Quit();
     IMG_Quit();
