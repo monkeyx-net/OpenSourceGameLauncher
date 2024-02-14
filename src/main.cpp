@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     //SDL_Renderer *renderer = NULL;
     bool done = false;
    // bool main_window = true;
-    bool show_ap_address_window = false;
+    bool show_ip_address_window = false;
     bool sshot = false;
     Mix_Chunk* gHigh = NULL;
 
@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-
-SDL_Texture* my_texture;
-int my_image_width, my_image_height;
+    
+    SDL_Texture* tex_screenshot;
+    int my_image_width, my_image_height;
 
 
     // From 2.0.18: Enable native IME.
@@ -143,13 +143,11 @@ int my_image_width, my_image_height;
     }
 
 
-    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &my_texture, my_image_width, my_image_height, renderer))
+    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, renderer))
     {
         printf("Error: SDL_CreateWindow():");
         return false;
     }
-
-    
 
     //setup image
 
@@ -176,9 +174,6 @@ int my_image_width, my_image_height;
         return false;
     }
 
-
-
-
     //SDL_RendererInfo info;
     //SDL_GetRendererInfo(renderer, &info);
     //SDL_Log("Current SDL_Renderer: %s", info.name);
@@ -188,12 +183,13 @@ int my_image_width, my_image_height;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    //Disabled so keys can be mapped with gptokeyb instead
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
-
 
 
     // Setup Platform/Renderer backends
@@ -278,7 +274,7 @@ int my_image_width, my_image_height;
                 //done = true;
                 //return 121;   
                 main_window = false;
-                show_ap_address_window = true;
+                show_ip_address_window = true;
 
             }
 
@@ -286,9 +282,9 @@ int my_image_width, my_image_height;
         }
 
 */
-         if (show_ap_address_window)
+         if (show_ip_address_window)
         {
-            ImGui::Begin("Change IP Address", &show_ap_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Begin("Change IP Address", &show_ip_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
             ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
             ImGui::Text("Set Server IP Adress:-");
@@ -312,7 +308,7 @@ int my_image_width, my_image_height;
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
             if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
             {
-                //show_ap_address_window = false;
+                //show_ip_address_window = false;
                 done = true;    
                 return 121;   
              }
@@ -320,122 +316,123 @@ int my_image_width, my_image_height;
         }
 
 
-// Demonstrate create a window with multiple child windows.
-{
-     bool p_open = true;
-    static int selected = 0;
-    //Full Screen IMGUI window
-    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-    ImGui::SetNextWindowBgAlpha(0.15f);
-
-     //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Possible layout?", &p_open, ImGuiWindowFlags_MenuBar))
-    {
-        if (ImGui::BeginMenuBar())
+        // Demonstrate create a window with multiple child windows.
         {
-            if (ImGui::BeginMenu("File"))
+            bool p_open = true;
+            static int selected = 0;
+            //Full Screen IMGUI window
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+            ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+            ImGui::SetNextWindowBgAlpha(0.15f);
+
+            //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+            if (ImGui::Begin("Possible layout?", &p_open, ImGuiWindowFlags_MenuBar))
             {
-                if (ImGui::MenuItem("Close", "Ctrl+W")) { p_open = false; }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
-
-        // Left      
-        {
-           ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-           std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
-
-          //  for (int i : texts)
-           for (int i = 0; i < 5; i++)
-            {
-                // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
-                char label[128];
-                sprintf(label, texts[i].c_str());
-                if (ImGui::Selectable(label, selected == i))
-                    selected = i;
-            }
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-
-        // Right
-        {
-            ImGui::BeginGroup();
-            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-            ImGui::Text("MyObject: %d", selected);
-            ImGui::Separator();
-            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
-            {
-                 Mix_PlayChannel( -1, gHigh, 0 );
-
-            }
-       
-
-            if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-            {
-
-                if (ImGui::BeginTabItem("Description"))
+                if (ImGui::BeginMenuBar())
                 {
-                    ImGui::Separator();
-                    ImGui::TextWrapped("log output: %s", log_debug.c_str());
-                    ImGui::Separator();
-                    ImGui::TextWrapped("file output: %s", file_debug.c_str());
-                    ImGui::Separator();
-                    ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
-                    ImGui::Separator();
-                    ImGui::EndTabItem();
-
-
-                    if (selected ==4)
+                    if (ImGui::BeginMenu("File"))
                     {
-            //static char str0[128] = "Edit Text Test";
-            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
-       
-            // Creates space
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            ImGui::TextWrapped("%s",instructions.c_str());
-            // Creates space
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
-            {
-                done = true;
-                return 0;
-
-            }
-            ImGui::SameLine();
-             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-            {
-                //done = true;
-                //return 121;   
-                //main_window = false;
-                show_ap_address_window = true;
-                Mix_PlayChannel( -1, gHigh, 0 );
-
-            }
+                        if (ImGui::MenuItem("Close", "Ctrl+W")) { p_open = false; }
+                        ImGui::EndMenu();
                     }
+                    ImGui::EndMenuBar();
                 }
-                if (ImGui::BeginTabItem("Details"))
+
+                // Left      
                 {
-                    // Load screenshot image.
-                    ImGui::Text("ID: 0123456789");
-                    ImGui::Text("pointer = %p", my_texture);
-                    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-                    ImGui::Image((void*) my_texture, ImVec2(my_image_width, my_image_height));
-                    ImGui::EndTabItem();
+                ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
+                ImGui::SetWindowFocus();         
+
+                //  for (int i : texts)
+                for (int i = 0; i < 5; i++)
+                    {
+                        // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+                        char label[128];
+                        sprintf(label, texts[i].c_str());
+                        if (ImGui::Selectable(label, selected == i))
+                            selected = i;
+                    }
+                    ImGui::EndChild();
                 }
-                ImGui::EndTabBar();
+                ImGui::SameLine();
+
+                // Right
+                {
+                    ImGui::BeginGroup();
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+                    ImGui::Text("MyObject: %d", selected);
+                    ImGui::Separator();
+                    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+                    {
+                        Mix_PlayChannel( -1, gHigh, 0 );
+
+                    }
+            
+
+                    if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+                    {
+
+                        if (ImGui::BeginTabItem("Description"))
+                        {
+                            ImGui::Separator();
+                            ImGui::TextWrapped("log output: %s", log_debug.c_str());
+                            ImGui::Separator();
+                            ImGui::TextWrapped("file output: %s", file_debug.c_str());
+                            ImGui::Separator();
+                            ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
+                            ImGui::Separator();
+                            ImGui::EndTabItem();
+
+
+                            if (selected ==4)
+                            {
+                    //static char str0[128] = "Edit Text Test";
+                    //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
+            
+                    // Creates space
+                    ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                    ImGui::TextWrapped("%s",instructions.c_str());
+                    // Creates space
+                    ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                    if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
+                    {
+                        done = true;
+                        return 0;
+
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                    {
+                        //done = true;
+                        //return 121;   
+                        //main_window = false;
+                        show_ip_address_window = true;
+                        Mix_PlayChannel( -1, gHigh, 0 );
+
+                    }
+                            }
+                        }
+                        if (ImGui::BeginTabItem("Details"))
+                        {
+                            // Load screenshot image.
+                            ImGui::Text("ID: 0123456789");
+                            ImGui::Text("pointer = %p", tex_screenshot);
+                            ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+                            ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
+                            ImGui::EndTabItem();
+                        }
+                        ImGui::EndTabBar();
+                    }
+                    ImGui::EndChild();
+                    if (ImGui::Button("Revert")) {}
+                    ImGui::SameLine();
+                    if (ImGui::Button("Save")) {}
+                    ImGui::EndGroup();
+                }
             }
-            ImGui::EndChild();
-            if (ImGui::Button("Revert")) {}
-            ImGui::SameLine();
-            if (ImGui::Button("Save")) {}
-            ImGui::EndGroup();
+            ImGui::End();
         }
-    }
-    ImGui::End();
-}
 
 
         // Rendering
