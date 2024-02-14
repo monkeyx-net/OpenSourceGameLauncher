@@ -95,7 +95,7 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
 }
 
 // Main code
-int main(int, char**)
+int main(int argc, char *argv[])
 {
 
     SDL_Texture *texture = NULL;
@@ -323,13 +323,14 @@ int my_image_width, my_image_height;
 // Demonstrate create a window with multiple child windows.
 {
      bool p_open = true;
+    static int selected = 0;
     //Full Screen IMGUI window
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::SetNextWindowBgAlpha(0.15f);
 
      //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Portmaster layout?", &p_open, ImGuiWindowFlags_MenuBar))
+    if (ImGui::Begin("Possible layout?", &p_open, ImGuiWindowFlags_MenuBar))
     {
         if (ImGui::BeginMenuBar())
         {
@@ -341,8 +342,7 @@ int my_image_width, my_image_height;
             ImGui::EndMenuBar();
         }
 
-        // Left
-        static int selected = 0;
+        // Left      
         {
            ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
            std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
@@ -378,16 +378,16 @@ int my_image_width, my_image_height;
 
                 if (ImGui::BeginTabItem("Description"))
                 {
-                
+                    ImGui::Separator();
+                    ImGui::TextWrapped("log output: %s", log_debug.c_str());
+                    ImGui::Separator();
                     ImGui::TextWrapped("file output: %s", file_debug.c_str());
                     ImGui::Separator();
                     ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
                     ImGui::Separator();
-                    ImGui::TextWrapped("log output: %s", log_debug.c_str());
-
-
-                  
                     ImGui::EndTabItem();
+
+
                     if (selected ==4)
                     {
             //static char str0[128] = "Edit Text Test";
@@ -409,7 +409,7 @@ int my_image_width, my_image_height;
             {
                 //done = true;
                 //return 121;   
-              //  main_window = false;
+                //main_window = false;
                 show_ap_address_window = true;
                 Mix_PlayChannel( -1, gHigh, 0 );
 
