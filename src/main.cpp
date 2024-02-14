@@ -1,6 +1,3 @@
-//Add mouse cursor.
-#define SDL_SIM_CURSOR_COMPILE 1
-
 //Need to load screensht images to IMGUI windows
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -9,7 +6,6 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "main.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -60,7 +56,7 @@ std::string exec(const char* cmd) {
 
 
 // Load texture for IMGUI
-bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& width, int& height, SDL_Renderer* renderer) 
+bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& width, int& height, SDL_Renderer* bg_renderer) 
 {
     int channels;
     unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
@@ -78,7 +74,7 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
         return false;
     }
 
-    *texture_ptr = SDL_CreateTextureFromSurface(renderer, surface);
+    *texture_ptr = SDL_CreateTextureFromSurface(bg_renderer, surface);
 
     if ((*texture_ptr) == nullptr) {
         fprintf(stderr, "Failed to create SDL texture: %s\n", SDL_GetError());
@@ -94,7 +90,7 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
 int main(int argc, char *argv[])
 {
 
-    SDL_Texture *texture = NULL;
+    SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
     bool done = false;
    // bool main_window = true;
@@ -109,7 +105,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    SDL_SIM_MouseInit();
     SDL_Texture* tex_screenshot;
     int my_image_width, my_image_height;
 
@@ -131,15 +126,15 @@ int main(int argc, char *argv[])
     // add error checking for img ang fft files etc
    
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    if (renderer == nullptr)
+    SDL_Renderer* bg_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    if (bg_renderer == nullptr)
     {
         SDL_Log("Error creating SDL_Renderer!");
         return 0;
     }
-    SDL_SIM_Set_Renderer(renderer);
 
-    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, renderer))
+
+    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, bg_renderer))
     {
         printf("Error: SDL_CreateWindow():");
         return false;
@@ -154,7 +149,7 @@ int main(int argc, char *argv[])
         printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
         return false;
     }
-    texture = IMG_LoadTexture(renderer, "Assets/Images/battlezone.png");
+    my_texture = IMG_LoadTexture(bg_renderer, "Assets/Images/battlezone.png");
 
 
     //Setup Sound
@@ -189,8 +184,8 @@ int main(int argc, char *argv[])
 
 
     // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-    ImGui_ImplSDLRenderer2_Init(renderer);
+    ImGui_ImplSDL2_InitForSDLRenderer(window, bg_renderer);
+    ImGui_ImplSDLRenderer2_Init(bg_renderer);
 
     //Using open source Roboto Medium. Remark the line below to use defaul 13 point terminal font.
     // Add error checking and default to system font.
@@ -225,8 +220,6 @@ int main(int argc, char *argv[])
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         SDL_Event event;
 
-       // SDL_RenderCopy(renderer, texture, NULL, NULL);
-       // SDL_RenderPresent(renderer);
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
@@ -433,16 +426,13 @@ int main(int argc, char *argv[])
 
         // Rendering
         ImGui::Render();
-        SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+        SDL_RenderSetScale(bg_renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         //Background Fill Colour
-        //SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        //SDL_SetRenderDrawColor(bg_renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        SDL_RenderClear(bg_renderer);
+        SDL_RenderCopy(bg_renderer, my_texture, NULL, NULL);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(renderer);
-        SDL_SIM_RenderCursor(NULL);
-       
-    
+        SDL_RenderPresent(bg_renderer);       
     }
 
     // Cleanup
@@ -451,11 +441,10 @@ int main(int argc, char *argv[])
     ImGui::DestroyContext();
     Mix_FreeChunk( gHigh );
     gHigh = NULL;
-	SDL_SIM_MouseQuit();
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(my_texture);
     Mix_Quit();
     IMG_Quit();
-    SDL_DestroyRenderer(renderer);
+    SDL_DestroyRenderer(bg_renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
