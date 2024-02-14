@@ -137,8 +137,7 @@ int main(int argc, char *argv[])
         SDL_Log("Error creating SDL_Renderer!");
         return 0;
     }
-    SDL_SIM_Set_Renderer(renderer);
-
+    
     if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, renderer))
     {
         printf("Error: SDL_CreateWindow():");
@@ -156,6 +155,7 @@ int main(int argc, char *argv[])
     }
     texture = IMG_LoadTexture(renderer, "Assets/Images/battlezone.png");
 
+SDL_SIM_Set_Renderer(renderer);
 
     //Setup Sound
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
