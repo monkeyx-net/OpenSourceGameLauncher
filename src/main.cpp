@@ -94,7 +94,6 @@ int main(int argc, char *argv[])
     //SDL_Renderer *renderer = NULL;
     bool done = false;
    // bool main_window = true;
-    bool show_ip_address_window = false;
     bool sshot = false;
     Mix_Chunk* gHigh = NULL;
 
@@ -201,6 +200,8 @@ int main(int argc, char *argv[])
     //Read ip and instructions files before the starting the loop
     std::string ip_load=read_file(std::ifstream("ip.txt"));
     std::string instructions=read_file(std::ifstream("instructions.txt"));
+    std::string readme=read_file(std::ifstream("README.md"));
+    std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
 
     std::string file_debug = exec("file imgui-demo");
     std::string ldd_debug = exec("ldd imgui-demo");
@@ -208,6 +209,8 @@ int main(int argc, char *argv[])
 
     // Vector for IP Address Input  ImGui::DragInt4
     static int vec4i[] = { 127, 0, 0, 1 }; 
+
+    static int i1=1;
 
     // Main loop
     
@@ -235,75 +238,6 @@ int main(int argc, char *argv[])
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
  
-     
-/*
-        if (main_window)
-        {
-            bool p_open = true;
-            // Flags for some reason having empty flags removes the collapse button, which is why I look at them!
-            //ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-            ImGui::Begin("Portmaster GUI Test",&p_open, window_flags);
-            //static char str0[128] = "Edit Text Test";
-            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
-       
-            // Creates space
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            ImGui::TextWrapped("%s",instructions.c_str());
-            // Creates space
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
-            {
-                done = true;
-                return 0;
-
-            }
-            ImGui::SameLine();
-             if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-            {
-                //done = true;
-                //return 121;   
-                main_window = false;
-                show_ip_address_window = true;
-
-            }
-
-            ImGui::End();
-        }
-
-*/
-         if (show_ip_address_window)
-        {
-            ImGui::Begin("Change IP Address", &show_ip_address_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
-            ImGui::Text("Set Server IP Adress:-");
-            ImGui::DragInt4("", vec4i, 1, 1, 255);
-            //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-            if (ImGui::Button("Save IP Address Press R2",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
-            {
-                std::ostringstream stream;
-                for (size_t i = 0; i < sizeof(vec4i)/sizeof(vec4i[0]); ++i)
-                {
-                 if (i) stream << '.';
-                    stream << vec4i[i] ;
-                }
-                std::ofstream file("ip.txt");
-                std::string ip_string = stream.str();
-			    file << ip_string;
-                file.close();
-                ip_load = ip_string;
-                //printf("%d.%d.%d.%d", vec4i[0],vec4i[1],vec4i[2],vec4i[3]);
-            }
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
-            {
-                //show_ip_address_window = false;
-                done = true;    
-                return 121;   
-             }
-            ImGui::End();
-        }
-
 
         // Demonstrate create a window with multiple child windows.
         {
@@ -329,7 +263,7 @@ int main(int argc, char *argv[])
 
                 // Left      
                 {
-                ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                ImGui::BeginChild("left pane", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
                 std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
                 ImGui::SetWindowFocus();         
 
@@ -349,7 +283,7 @@ int main(int argc, char *argv[])
                 // Right
                 {
                     ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()-50)); // Leave room for 1 line below us
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
@@ -364,60 +298,91 @@ int main(int argc, char *argv[])
 
                         if (ImGui::BeginTabItem("Description"))
                         {
-                            ImGui::Separator();
-                            ImGui::TextWrapped("log output: %s", log_debug.c_str());
-                            ImGui::Separator();
-                            ImGui::TextWrapped("file output: %s", file_debug.c_str());
-                            ImGui::Separator();
-                            ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
-                            ImGui::Separator();
-                            ImGui::EndTabItem();
-
-
-                            if (selected ==4)
+                            if (selected == 0)
                             {
-                    //static char str0[128] = "Edit Text Test";
-                    //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
-            
-                    // Creates space
-                    ImGui::Dummy(ImVec2(0.0f, 20.0f));
-                    ImGui::TextWrapped("%s",instructions.c_str());
-                    // Creates space
-                    ImGui::Dummy(ImVec2(0.0f, 20.0f));
-                    if (ImGui::Button("Press L1",ImVec2(200,50)) || (ImGui::IsKeyPressed(ImGuiKey_F1)))
-                    {
-                        done = true;
-                        return 0;
-
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Press R1",ImVec2(200,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                    {
-                        //done = true;
-                        //return 121;   
-                        //main_window = false;
-                        show_ip_address_window = true;
-                        Mix_PlayChannel( -1, gHigh, 0 );
-
-                    }
+                                 ImGui::TextWrapped("output: %s", readme.c_str());
                             }
+                            if (selected == 1)
+                            {
+                                                                // Load screenshot image.
+                                ImGui::Text("ID: 0123456789");
+                                ImGui::Text("pointer = %p", tex_screenshot);
+                                ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+                                ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
+                            }
+
+                             if (selected == 2)
+                            {
+                                ImGui::TextWrapped("Output: %s", licence.c_str());
+                            }
+                            if (selected == 3)
+                            {
+                                ImGui::Separator();
+                                ImGui::TextWrapped("log file output: %s", log_debug.c_str());
+                                ImGui::Separator();
+                                ImGui::TextWrapped("file output: %s", file_debug.c_str());
+                                ImGui::Separator();
+                                ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
+                                ImGui::Separator();
+                            }
+                            if (selected ==4 )
+                            {
+                                 const ImU8  u8_min = 1, u8_max = 4;
+
+                                //static char str0[128] = "Edit Text Test";
+                                //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
+                        
+                                // Creates space
+                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                                ImGui::TextWrapped("%s",instructions.c_str());
+                                // Creates space
+                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                                ImGui::Text("Number of Players:-");
+                                ImGui::SameLine();
+                                ImGui::DragInt("", &i1, 0.5f, 1, 4);
+                                ImGui::SliderScalar("",    ImGuiDataType_U8,   &i1,  &u8_min,    &u8_max,   "%u");
+                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                                ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
+                                ImGui::Text("Set Server IP Adress:-");
+                                ImGui::DragInt4("", vec4i, 1, 1, 255);
+                                //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
+                                if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                {
+                                    std::ostringstream stream;
+                                    for (size_t i = 0; i < sizeof(vec4i)/sizeof(vec4i[0]); ++i)
+                                    {
+                                    if (i) stream << '.';
+                                        stream << vec4i[i] ;
+                                    }
+                                    std::ofstream file("ip.txt");
+                                    std::string ip_string = stream.str();
+                                    file << ip_string;
+                                    file.close();
+                                    ip_load = ip_string;
+                                    //printf("%d.%d.%d.%d", vec4i[0],vec4i[1],vec4i[2],vec4i[3]);
+                                }
+                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                            }
+                              ImGui::EndTabItem();
+                              
                         }
-                        if (ImGui::BeginTabItem("Details"))
-                        {
-                            // Load screenshot image.
-                            ImGui::Text("ID: 0123456789");
-                            ImGui::Text("pointer = %p", tex_screenshot);
-                            ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-                            ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
-                            ImGui::EndTabItem();
-                        }
+                     
                         ImGui::EndTabBar();
+
+                        
                     }
+                       
                     ImGui::EndChild();
-                    if (ImGui::Button("Revert")) {}
-                    ImGui::SameLine();
-                    if (ImGui::Button("Save")) {}
+               
+                    if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
+                        {
+                            done = true;
+                            return 0;
+                        }
+
+
                     ImGui::EndGroup();
+                    
                 }
             }
             ImGui::End();
