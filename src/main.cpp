@@ -137,7 +137,8 @@ int main(int argc, char *argv[])
         SDL_Log("Error creating SDL_Renderer!");
         return 0;
     }
-    
+    SDL_SIM_Set_Renderer(renderer);
+
     if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, renderer))
     {
         printf("Error: SDL_CreateWindow():");
@@ -155,7 +156,6 @@ int main(int argc, char *argv[])
     }
     texture = IMG_LoadTexture(renderer, "Assets/Images/battlezone.png");
 
-SDL_SIM_Set_Renderer(renderer);
 
     //Setup Sound
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
@@ -436,11 +436,13 @@ SDL_SIM_Set_Renderer(renderer);
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         //Background Fill Colour
         //SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-        SDL_SIM_RenderCursor(NULL);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
         SDL_RenderPresent(renderer);
+        SDL_SIM_RenderCursor(NULL);
+       
+    
     }
 
     // Cleanup
