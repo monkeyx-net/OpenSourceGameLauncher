@@ -23,4 +23,5 @@ TODO
 - [x] Test on my RGB30 Jelos and ArkOS
 - [ ] Create CLI arguments for title and text
 - [ ] Create CLI arguments for buttons
-- [ ] Check full screen and scaling
+- [x] Check full screen and scaling
+- [ ] Parse json files
