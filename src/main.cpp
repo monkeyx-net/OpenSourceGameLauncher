@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
                 {
                 ImGui::BeginChild("left pane", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
                 std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
-                ImGui::SetWindowFocus();         
+                //ImGui::SetWindowFocus();         
 
                 //  for (int i : texts)
                 for (int i = 0; i < 5; i++)
