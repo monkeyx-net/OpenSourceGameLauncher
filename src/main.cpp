@@ -249,19 +249,10 @@ int main(int argc, char *argv[])
             ImGui::SetNextWindowBgAlpha(0.15f);
 
             //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("Possible layout?", &p_open, ImGuiWindowFlags_MenuBar))
+            if (ImGui::Begin("Possible layout?", &p_open))
             {
-                if (ImGui::BeginMenuBar())
-                {
-                    if (ImGui::BeginMenu("File"))
-                    {
-                        if (ImGui::MenuItem("Close", "Ctrl+W")) { p_open = false; }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndMenuBar();
-                }
 
-                // Left      
+                // Left  Container    
                 {
                 ImGui::BeginChild("left pane", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
                 std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
@@ -280,7 +271,7 @@ int main(int argc, char *argv[])
                 }
                 ImGui::SameLine();
 
-                // Right
+                // Right ContainerS
                 {
                     ImGui::BeginGroup();
                     ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()-50)); // Leave room for 1 line below us
@@ -327,7 +318,8 @@ int main(int argc, char *argv[])
                             }
                             if (selected ==4 )
                             {
-                                 const ImU8  u8_min = 1, u8_max = 4;
+                                ImGui::SetWindowFocus();
+                                const ImU8  u8_min = 1, u8_one  = 1, u8_max = 4;
 
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
@@ -339,8 +331,10 @@ int main(int argc, char *argv[])
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
-                                ImGui::DragInt("", &i1, 0.5f, 1, 4);
-                                ImGui::SliderScalar("",    ImGuiDataType_U8,   &i1,  &u8_min,    &u8_max,   "%u");
+                             //   ImGui::DragInt("", &i1, 1.0f, 1, 4);
+                             //   ImGui::SliderScalar("", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
+                                ImGui::InputScalar("input u8", ImGuiDataType_U8, &i1, true ? &u8_one : NULL, NULL, "%u");
+                                ImGui::SliderScalar("slider u8 full",       ImGuiDataType_U8,     &i1,  &u8_min,   &u8_max,   "%u");
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
                                 ImGui::Text("Set Server IP Adress:-");
@@ -361,33 +355,28 @@ int main(int argc, char *argv[])
                                     ip_load = ip_string;
                                     //printf("%d.%d.%d.%d", vec4i[0],vec4i[1],vec4i[2],vec4i[3]);
                                 }
-                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
                             }
-                              ImGui::EndTabItem();
+                          
+                            ImGui::EndTabItem();
                               
                         }
                      
-                        ImGui::EndTabBar();
-
-                        
+                    ImGui::EndTabBar();   
                     }
-                       
+
                     ImGui::EndChild();
-               
                     if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
-                        {
-                            done = true;
-                            return 0;
-                        }
-
-
-                    ImGui::EndGroup();
-                    
+                    {
+                        done = true;
+                        return 0;
+                    }  
+                    ImGui::SameLine(); 
+                    if (ImGui::Button("Save")) {}
+                    ImGui::EndGroup();                    
                 }
             }
             ImGui::End();
         }
-
 
         // Rendering
         ImGui::Render();
