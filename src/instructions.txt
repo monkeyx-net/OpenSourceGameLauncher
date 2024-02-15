@@ -1,9 +1,10 @@
+## Navigation
+
 Press the L1 Button to STart
 
-Navigate d pad and sticks (Press esc or L2 to tab)
+Navigate D pad and sticks (Press esc or L2 to tab between windows)
 
-Y tab forward X Tab Back
-
+Y tab forward X Tab Back 
 A/B Select and Edit items
 
 Select Game Options for setting server/client IP address
