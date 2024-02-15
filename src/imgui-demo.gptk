@@ -1,8 +1,9 @@
 back = esc
 start = esc
 
-a = enter
-b = enter
+a = tab
+b = tab
+b = add_shift
 x = space
 y = space
 

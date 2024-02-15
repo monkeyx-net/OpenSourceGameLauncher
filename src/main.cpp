@@ -277,9 +277,10 @@ int main(int argc, char *argv[])
 
                 // Left  Container    
                 {
+                    
                 ImGui::BeginChild("left pane", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
                 std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
-                //ImGui::SetWindowFocus();         
+                //ImGui::SetWindowFocus();                       
 
                 //  for (int i : texts)
                 for (int i = 0; i < 5; i++)
@@ -303,9 +304,7 @@ int main(int argc, char *argv[])
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
                     {
                         Mix_PlayChannel( -1, gHigh, 0 );
-
                     }
-            
 
                     if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
                     {
@@ -343,7 +342,7 @@ int main(int argc, char *argv[])
                             }
                             if (selected ==4 )
                             {
-                                ImGui::SetWindowFocus();
+                                //ImGui::SetWindowFocus();
                                 
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
