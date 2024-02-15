@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
             ImGui::SetNextWindowBgAlpha(0.15f);
 
             //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("Possible layout?", &p_open))
+            if (ImGui::Begin("Game Launcher - Press L1 to start", &p_open))
             {
 
                 // Left  Container    
