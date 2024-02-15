@@ -35,6 +35,24 @@ std::string read_file(std::ifstream in_text )
   return all_lines;
 }
 
+std::string write_file(std::string filename, int player, int vecIp4[])
+{
+    //printf("Player = %d.%d.%d.%d", vecIp4[0],vecIp4[1],vecIp4[2],vecIp4[3]);
+    
+    std::ostringstream stream;
+    for (int i = 0; i < 4; i++)
+    {
+        if (i) stream << '.';
+        stream << vecIp4[i];
+    }
+    std::ofstream file(filename);
+    std::string ip_string = stream.str();
+    file << ip_string;
+    file.close();
+    //ip_load = ip_string;
+    return ip_string;
+}
+
 // Run system command and capture output
 
 std::string exec(const char* cmd) {
@@ -198,7 +216,7 @@ int main(int argc, char *argv[])
 
 
     //Read ip and instructions files before the starting the loop
-    std::string ip_load=read_file(std::ifstream("ip.txt"));
+    std::string ip_load=read_file(std::ifstream("ip_server.txt"));
     std::string instructions=read_file(std::ifstream("instructions.txt"));
     std::string readme=read_file(std::ifstream("README.md"));
     std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
@@ -208,9 +226,14 @@ int main(int argc, char *argv[])
     std::string log_debug=read_file(std::ifstream("log.txt"));
 
     // Vector for IP Address Input  ImGui::DragInt4
-    static int vec4i[] = { 127, 0, 0, 1 }; 
+    static int vec4i_svr1[] = { 127, 0, 0, 1 };
+    static int vec4i_ply1[] = { 127, 0, 0, 2 };
+    static int vec4i_ply2[] = { 127, 0, 0, 2 };
+    static int vec4i_ply3[] = { 127, 0, 0, 3 };
+    static int vec4i_ply4[] = { 127, 0, 0, 4 }; 
 
-    static int i1=1;
+    const ImU8  u8_min = 1, u8_max = 4;
+    static int iplayer=1;
 
     // Main loop
     
@@ -291,7 +314,9 @@ int main(int argc, char *argv[])
                         {
                             if (selected == 0)
                             {
-                                 ImGui::TextWrapped("output: %s", readme.c_str());
+                                ImGui::TextWrapped("Navigaton Instructons: %s", instructions.c_str());
+                                ImGui::Separator();
+                                ImGui::TextWrapped("Game README.md: %s", readme.c_str());
                             }
                             if (selected == 1)
                             {
@@ -319,8 +344,7 @@ int main(int argc, char *argv[])
                             if (selected ==4 )
                             {
                                 ImGui::SetWindowFocus();
-                                const ImU8  u8_min = 1, u8_max = 4;
-
+                                
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
                         
@@ -331,26 +355,77 @@ int main(int argc, char *argv[])
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
-                                ImGui::SliderScalar("slider u8 full", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
+                                ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
+    
+                                //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
                                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
                                 ImGui::Text("Set Server IP Adress:-");
-                                ImGui::DragInt4("", vec4i, 1, 1, 255);
-                                //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-                                if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                {
-                                    std::ostringstream stream;
-                                    for (size_t i = 0; i < sizeof(vec4i)/sizeof(vec4i[0]); ++i)
+                                ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
+                                 if (ImGui::Button("Save Shown IP Addresses Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                 
                                     {
-                                    if (i) stream << '.';
-                                        stream << vec4i[i] ;
+                                        ip_load = write_file("ip_server.txt",iplayer, vec4i_svr1);  
                                     }
-                                    std::ofstream file("ip.txt");
-                                    std::string ip_string = stream.str();
-                                    file << ip_string;
-                                    file.close();
-                                    ip_load = ip_string;
-                                    //printf("%d.%d.%d.%d", vec4i[0],vec4i[1],vec4i[2],vec4i[3]);
+                                if (iplayer==1)
+                                {
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player1", vec4i_ply1, 1, 1, 255);
+                                   
+                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                    {
+                                        ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    }
+                                }
+                                if (iplayer==2)
+                                {
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                    {
+                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
+                                        
+                                    }
+                                }
+                                if (iplayer==3)
+                                {
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
+                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                    {
+                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                                    ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                                        
+                                    }
+                                }
+                                if (iplayer==4)
+                                {
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
+                                    ImGui::Separator();
+                                    ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
+                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                                    {
+                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                                    ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                                    ip_load = write_file("ip4.txt",iplayer, vec4i_ply4);
+                                    }
                                 }
                             }
                           
@@ -368,7 +443,11 @@ int main(int argc, char *argv[])
                         return 0;
                     }  
                     ImGui::SameLine(); 
-                    if (ImGui::Button("Save")) {}
+                    if (ImGui::Button("Save IP Addresses and Start - Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                    {
+                        done = true;
+                        return 121;  
+                    }
                     ImGui::EndGroup();                    
                 }
             }
