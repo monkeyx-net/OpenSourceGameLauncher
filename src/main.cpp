@@ -333,8 +333,8 @@ int main(int argc, char *argv[])
                                 ImGui::SameLine();
                              //   ImGui::DragInt("", &i1, 1.0f, 1, 4);
                              //   ImGui::SliderScalar("", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
-                                ImGui::InputScalar("input u8", ImGuiDataType_U8, &i1, true ? &u8_one : NULL, NULL, "%u");
-                                ImGui::SliderScalar("slider u8 full",       ImGuiDataType_U8,     &i1,  &u8_min,   &u8_max,   "%u");
+                              //  ImGui::InputScalar("input u8", ImGuiDataType_U8, &i1, true ? &u8_one : NULL, NULL, "%u");
+                                ImGui::SliderScalar("slider u8 full", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
                                 ImGui::Text("Set Server IP Adress:-");
