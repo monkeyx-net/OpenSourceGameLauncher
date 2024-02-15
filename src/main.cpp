@@ -312,6 +312,10 @@ int main(int argc, char *argv[])
 
     //Read ip and instructions files before the starting the loop
     std::string ip_load=read_file(std::ifstream("ip_server.txt"));
+    std::string ip1_load=read_file(std::ifstream("ip1.txt"));
+    std::string ip2_load=read_file(std::ifstream("ip2.txt"));
+    std::string ip3_load=read_file(std::ifstream("ip3.txt"));
+    std::string ip4_load=read_file(std::ifstream("ip4.txt"));
     std::string instructions=read_file(std::ifstream("instructions.txt"));
     std::string readme=read_file(std::ifstream("README.md"));
     std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
@@ -463,11 +467,11 @@ int main(int argc, char *argv[])
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
                                 //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
-                                ImGui::DragInt("items_count", &iplayer, 0.01f, 1, 4);
+                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, 4);
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
     
                                 //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-                                ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
+                                ImGui::Text("Currently set Server IP Address: %s",ip_load.c_str());
                                 ImGui::Text("Set Server IP Adress:-");
                                 ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
                                  if (ImGui::Button("Save Shown IP Addresses Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
@@ -480,7 +484,8 @@ int main(int argc, char *argv[])
                                 if (iplayer==1)
                                 {
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player1", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip1_load.c_str());
+                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
                                    
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
@@ -492,9 +497,11 @@ int main(int argc, char *argv[])
                                 if (iplayer==2)
                                 {
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
+                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip2_load.c_str());
+                                    ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
@@ -507,11 +514,14 @@ int main(int argc, char *argv[])
                                 if (iplayer==3)
                                 {
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
+                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
+                                    ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                                    ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
                                     ImGui::Separator();
-                                    ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
+                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip3_load.c_str());
+                                    ImGui::DragInt4("Player 3 IP", vec4i_ply3, 1, 1, 255);
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
@@ -525,12 +535,16 @@ int main(int argc, char *argv[])
                                 if (iplayer==4)
                                 {
                                     ImGui::Separator();
+                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
                                     ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
                                     ImGui::Separator();
+                                    ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
                                     ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
                                     ImGui::Separator();
+                                    ImGui::Text("Currently set Player 3 IP Address: %s", ip3_load.c_str());
                                     ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
                                     ImGui::Separator();
+                                   ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
                                     ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {

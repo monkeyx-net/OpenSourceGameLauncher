@@ -1,6 +1,6 @@
 ## Navigation
 
-Press the L1 Button to STart
+Press the L1 Button to Start
 
 Navigate D pad and sticks (Press esc or L2 to tab between windows)
 
