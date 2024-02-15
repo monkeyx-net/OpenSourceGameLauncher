@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
                 // Right ContainerS
                 {
                     ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()-50)); // Leave room for 1 line below us
+                    ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
@@ -420,12 +420,10 @@ int main(int argc, char *argv[])
                             {
                                 Markdown(instructions);
                                 Markdown( readme);
-                                //ImGui::TextWrapped("Game README.md: %s", readme.c_str());
-                                //ImGui::TextWrapped("Navigaton Instructons: %s", instructions.c_str());
                             }
                             if (selected == 1)
                             {
-                                                                // Load screenshot image.
+                                // Load screenshot image.
                                 ImGui::Text("ID: 0123456789");
                                 ImGui::Text("pointer = %p", tex_screenshot);
                                 ImGui::Text("size = %d x %d", my_image_width, my_image_height);
@@ -543,6 +541,8 @@ int main(int argc, char *argv[])
                             }
                           
                             ImGui::EndTabItem();
+                            ImGui::Separator();
+                            
                               
                         }
                      
