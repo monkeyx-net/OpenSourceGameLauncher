@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
                             if (selected ==4 )
                             {
                                 ImGui::SetWindowFocus();
-                                const ImU8  u8_min = 1, u8_one  = 1, u8_max = 4;
+                                const ImU8  u8_min = 1, u8_max = 4;
 
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
@@ -331,9 +331,6 @@ int main(int argc, char *argv[])
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
-                             //   ImGui::DragInt("", &i1, 1.0f, 1, 4);
-                             //   ImGui::SliderScalar("", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
-                              //  ImGui::InputScalar("input u8", ImGuiDataType_U8, &i1, true ? &u8_one : NULL, NULL, "%u");
                                 ImGui::SliderScalar("slider u8 full", ImGuiDataType_U8, &i1, &u8_min, &u8_max, "%u");
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Currently set IP Address: %s",ip_load.c_str());
