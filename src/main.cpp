@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     static int vec4i_ply3[] = { 127, 0, 0, 3 };
     static int vec4i_ply4[] = { 127, 0, 0, 4 }; 
 
-    const ImU8  u8_min = 1, u8_max = 4;
+    //const ImU8  u8_min = 1, u8_max = 4;
     static int iplayer=1;
 
     // Main loop
@@ -355,7 +355,8 @@ int main(int argc, char *argv[])
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
-                                ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
+                                //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
+                                ImGui::DragInt("items_count", &iplayer, 0.01f, 1, 4);
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
     
                                 //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
@@ -366,6 +367,8 @@ int main(int argc, char *argv[])
                                  
                                     {
                                         ip_load = write_file("ip_server.txt",iplayer, vec4i_svr1);  
+                                        done = true;
+                                        return 120;
                                     }
                                 if (iplayer==1)
                                 {
@@ -375,6 +378,8 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                         ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                        done = true;
+                                        return 121;
                                     }
                                 }
                                 if (iplayer==2)
@@ -388,7 +393,8 @@ int main(int argc, char *argv[])
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
                                     ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                     ip_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
-                                        
+                                    done = true;
+                                    return 122;
                                     }
                                 }
                                 if (iplayer==3)
@@ -405,7 +411,8 @@ int main(int argc, char *argv[])
                                     ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                     ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
                                     ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
-                                        
+                                    done = true;
+                                    return 123;    
                                     }
                                 }
                                 if (iplayer==4)
@@ -425,6 +432,8 @@ int main(int argc, char *argv[])
                                     ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
                                     ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
                                     ip_load = write_file("ip4.txt",iplayer, vec4i_ply4);
+                                    done = true;
+                                    return 124;
                                     }
                                 }
                             }
@@ -442,12 +451,6 @@ int main(int argc, char *argv[])
                         done = true;
                         return 0;
                     }  
-                    ImGui::SameLine(); 
-                    if (ImGui::Button("Save IP Addresses and Start - Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                    {
-                        done = true;
-                        return 121;  
-                    }
                     ImGui::EndGroup();                    
                 }
             }
