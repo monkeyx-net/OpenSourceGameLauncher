@@ -11,7 +11,7 @@ x = add_shift
 l1 = f1
 l2 = esc
 r1 = f2
-r2 = tab
+r2 = f2
 
 up = up
 down = down

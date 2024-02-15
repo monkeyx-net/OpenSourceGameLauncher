@@ -292,14 +292,15 @@ int main(int argc, char *argv[])
                         sprintf(label, texts[i].c_str());
                         if (ImGui::Selectable(label, selected == i))
                             selected = i;
+                    
                     }
-                      if (ImGui::Button("Start Game - L1")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
+
+                if (ImGui::Button("Start Game - L1")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
                     {
                         done = true;
                         return 0;
                     }  
                 ImGui::EndChild();
-//                ImGui::SetNextWindowFocus();
                 }
                 ImGui::SameLine();
 
@@ -350,7 +351,7 @@ int main(int argc, char *argv[])
                             }
                             if (selected ==4 )
                             {
-                               
+                            
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
                         
