@@ -375,13 +375,13 @@ int main(int argc, char *argv[])
                 {
                     
                 ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
-                std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
+                std::string texts[6] = {"Navigation", "Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();                    
 
                 //  for (int i : texts)
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 6; i++)
                     {
                         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                         char label[128];
@@ -406,10 +406,11 @@ int main(int argc, char *argv[])
                     ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
-                    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+               /*     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
                     {
                         Mix_PlayChannel( -1, gHigh, 0 );
                     }
+                    */
 
                     if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
                     {
@@ -419,9 +420,13 @@ int main(int argc, char *argv[])
                             if (selected == 0)
                             {
                                 Markdown(instructions);
-                                Markdown( readme);
+
                             }
                             if (selected == 1)
+                            {
+                                Markdown(readme);
+                            }
+                            if (selected == 2)
                             {
                                 // Load screenshot image.
                                 ImGui::Text("ID: 0123456789");
@@ -430,11 +435,11 @@ int main(int argc, char *argv[])
                                 ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
                             }
 
-                             if (selected == 2)
+                             if (selected == 3)
                             {
                                 ImGui::TextWrapped("Output: %s", licence.c_str());
                             }
-                            if (selected == 3)
+                            if (selected == 4)
                             {
                                 ImGui::Separator();
                                 ImGui::TextWrapped("log file output: %s", log_debug.c_str());
@@ -444,7 +449,7 @@ int main(int argc, char *argv[])
                                 ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
                                 ImGui::Separator();
                             }
-                            if (selected ==4 )
+                            if (selected == 5)
                             {
                             
                                 //static char str0[128] = "Edit Text Test";
@@ -549,7 +554,7 @@ int main(int argc, char *argv[])
                     ImGui::EndTabBar();   
                     }
 
-                    ImGui::EndChild();
+                    ImGui::EndChild();      
                     ImGui::EndGroup();                    
                 }
             }
