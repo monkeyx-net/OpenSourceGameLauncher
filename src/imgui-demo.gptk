@@ -1,14 +1,15 @@
 back = esc
 start = esc
 
-a = tab
-b = tab
-b = add_shift
-x = space
-y = space
+
+a = space
+b = space
+y = tab
+x = tab
+x = add_shift
 
 l1 = f1
-l2 = tab
+l2 = esc
 r1 = f2
 r2 = tab
 

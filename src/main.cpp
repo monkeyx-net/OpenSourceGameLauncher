@@ -278,9 +278,11 @@ int main(int argc, char *argv[])
                 // Left  Container    
                 {
                     
-                ImGui::BeginChild("left pane", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
                 std::string texts[5] = {"Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
-                //ImGui::SetWindowFocus();                       
+                //ImGui::SetWindowFocus();   
+                if (ImGui::IsWindowAppearing())
+                    ImGui::SetKeyboardFocusHere();                    
 
                 //  for (int i : texts)
                 for (int i = 0; i < 5; i++)
@@ -291,7 +293,13 @@ int main(int argc, char *argv[])
                         if (ImGui::Selectable(label, selected == i))
                             selected = i;
                     }
-                    ImGui::EndChild();
+                      if (ImGui::Button("Start Game - L1")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
+                    {
+                        done = true;
+                        return 0;
+                    }  
+                ImGui::EndChild();
+//                ImGui::SetNextWindowFocus();
                 }
                 ImGui::SameLine();
 
@@ -342,8 +350,7 @@ int main(int argc, char *argv[])
                             }
                             if (selected ==4 )
                             {
-                                //ImGui::SetWindowFocus();
-                                
+                               
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
                         
@@ -445,11 +452,6 @@ int main(int argc, char *argv[])
                     }
 
                     ImGui::EndChild();
-                    if (ImGui::Button("Start Game - Press L1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
-                    {
-                        done = true;
-                        return 0;
-                    }  
                     ImGui::EndGroup();                    
                 }
             }
