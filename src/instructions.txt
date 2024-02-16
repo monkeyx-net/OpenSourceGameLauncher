@@ -1,10 +1,9 @@
 ## Navigation
 
-Press the L1 Button to Start
+Press the L1 Button to Start. Press L2 for game options
 
-Navigate D pad and sticks (Press esc or L2 to tab between windows)
+Navigate D pad and sticks 
 
-Y tab forward X Tab Back 
 A/B Select and Edit items
 
 Select Game Options for setting server/client IP address

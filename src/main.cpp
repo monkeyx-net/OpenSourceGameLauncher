@@ -243,33 +243,6 @@ class InputParser{
 // Main code
 int main(int argc, char *argv[])
 {
-    static int iplayer= 1;
-    InputParser input(argc, argv);
-    if(input.cmdOptionExists("-h")){
-        std::cout <<"-h to show all options" << std::endl;
-        std::cout <<"-n Players 1 to 4" << std::endl;
-        return 0;
-    }
-    const std::string &players = input.getCmdOption("-p");
-    if (!players.empty())
-    {
-        int ptest = atoi(players.c_str());
-        if (ptest >0 && ptest <5)
-        {
-         //std::cout << "Players " << players;
-         iplayer=ptest;
-        }
-   
-    }
-    
-    const std::string &filename = input.getCmdOption("-f");
-    if (!filename.empty()){
-        std::cout << "File? " << filename ;
-    }
-    //return 0; 
-   
-    SDL_Texture *my_texture = NULL;
-    //SDL_Renderer *renderer = NULL;
     bool done = false;
     bool show_ip_window = false;
     bool sshot = false;
@@ -293,6 +266,36 @@ int main(int argc, char *argv[])
     static int vec4i_ply2[3];
     static int vec4i_ply3[3];
     static int vec4i_ply4[3]; 
+    static int iplayer = 1;
+    static int mplayer = 4;
+    InputParser input(argc, argv);
+    if(input.cmdOptionExists("-h")){
+        std::cout <<"-h to show all options" << std::endl;
+        std::cout <<"-n Max Players 1 to 4" << std::endl;
+        return 0;
+    }
+    const std::string &players = input.getCmdOption("-p");
+    if (!players.empty())
+    {
+        int ptest = atoi(players.c_str());
+        if (ptest >0 && ptest <5)
+        {
+         //std::cout << "Players " << players;
+         mplayer=ptest;
+         std::cout << mplayer;
+        }
+   
+    }
+    
+    const std::string &filename = input.getCmdOption("-f");
+    if (!filename.empty()){
+        std::cout << "File? " << filename ;
+    }
+    //return 0; 
+   
+    SDL_Texture *my_texture = NULL;
+    //SDL_Renderer *renderer = NULL;
+  
     
     //const ImU8  u8_min = 1, u8_max = 4;
     
@@ -582,7 +585,7 @@ int main(int argc, char *argv[])
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
                                 //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
-                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, iplayer);
+                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, mplayer);
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
     
                                 //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
