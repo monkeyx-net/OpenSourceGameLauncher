@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
@@ -214,10 +215,58 @@ std::vector<std::string> split (const std::string &s, char delim)
 
     return result;
 }
+class InputParser{
+    public:
+        InputParser (int &argc, char **argv){
+            for (int i=1; i < argc; ++i)
+                this->tokens.push_back(std::string(argv[i]));
+        }
+       
+        const std::string& getCmdOption(const std::string &option) const{
+            std::vector<std::string>::const_iterator itr;
+            itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
+            if (itr != this->tokens.end() && ++itr != this->tokens.end()){
+                return *itr;
+            }
+            static const std::string empty_string("");
+            return empty_string;
+        }
+        
+        bool cmdOptionExists(const std::string &option) const{
+            return std::find(this->tokens.begin(), this->tokens.end(), option)
+                   != this->tokens.end();
+        }
+    private:
+        std::vector <std::string> tokens;
+};
 
 // Main code
 int main(int argc, char *argv[])
 {
+    static int iplayer= 1;
+   InputParser input(argc, argv);
+    if(input.cmdOptionExists("-h")){
+        std::cout <<"-h to show all options" << std::endl;
+        std::cout <<"-n Players 1 to 4" << std::endl;
+        return 0;
+    }
+    const std::string &players = input.getCmdOption("-p");
+    if (!players.empty())
+    {
+        int ptest = atoi(players.c_str());
+        if (ptest >0 && ptest <5)
+        {
+         std::cout << "Players " << players;
+         iplayer=ptest;
+        }
+   
+    }
+    
+    const std::string &filename = input.getCmdOption("-f");
+    if (!filename.empty()){
+        std::cout << "File? " << filename ;
+    }
+    //return 0; 
    
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
@@ -246,7 +295,7 @@ int main(int argc, char *argv[])
     static int vec4i_ply4[3]; 
     
     //const ImU8  u8_min = 1, u8_max = 4;
-    static int iplayer=1;
+    
 
     std::vector<std::string> v1 = split (ips_load, '.');
     for (int i = 0; i < 4; i++)
