@@ -11,8 +11,10 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <fstream>
+#include <vector>
 #include <sstream>
 #include <iostream>
+#include <string>
 
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
@@ -144,7 +146,7 @@ std::string write_file(std::string filename, int player, int vecIp4[])
     std::string ip_string = stream.str();
     file << ip_string;
     file.close();
-    //ip_load = ip_string;
+    //ips_load = ip_string;
     return ip_string;
 }
 
@@ -199,17 +201,79 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
     return true;
 }
 
+
+std::vector<std::string> split (const std::string &s, char delim)
+ {
+    std::vector<std::string> result;
+
+    std::stringstream ss (s);
+    std::string item;
+    while (getline (ss, item, delim)) {
+        result.push_back (item);
+    }
+
+    return result;
+}
+
 // Main code
 int main(int argc, char *argv[])
 {
-
+   
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
     bool done = false;
-   // bool main_window = true;
+    bool show_ip_window = false;
     bool sshot = false;
     Mix_Chunk* gHigh = NULL;
 
+     //Read ip and instructions files before the starting the loop
+    std::string ips_load=read_file(std::ifstream("ip_server.txt"));
+    std::string ip1_load=read_file(std::ifstream("ip1.txt"));
+    std::string ip2_load=read_file(std::ifstream("ip2.txt"));
+    std::string ip3_load=read_file(std::ifstream("ip3.txt"));
+    std::string ip4_load=read_file(std::ifstream("ip4.txt"));
+    std::string instructions=read_file(std::ifstream("instructions.txt"));
+    std::string readme=read_file(std::ifstream("README.md"));
+    std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
+    std::string file_debug = exec("file imgui-demo");
+    std::string ldd_debug = exec("ldd imgui-demo");
+    std::string log_debug=read_file(std::ifstream("log.txt"));
+    // Vector for IP Address Input  ImGui::DragInt4
+    static int vec4i_svr1[3];// = { 127, 0, 0, 1 };
+    static int vec4i_ply1[3];
+    static int vec4i_ply2[3];
+    static int vec4i_ply3[3];
+    static int vec4i_ply4[3]; 
+    
+    //const ImU8  u8_min = 1, u8_max = 4;
+    static int iplayer=1;
+
+    std::vector<std::string> v1 = split (ips_load, '.');
+    for (int i = 0; i < 4; i++)
+    {
+        vec4i_svr1[i] = atoi(v1[i].c_str());
+    }
+    std::vector<std::string> v2 = split (ip1_load, '.');
+    for (int i = 0; i < 4; i++)
+    {
+        vec4i_ply1[i] = atoi(v2[i].c_str());
+    }
+    std::vector<std::string> v3 = split (ip2_load, '.');
+    for (int i = 0; i < 4; i++)
+    {
+        vec4i_ply2[i] = atoi(v3[i].c_str());
+    }
+    std::vector<std::string> v4 = split (ip3_load, '.');
+    for (int i = 0; i < 4; i++)
+    {
+        vec4i_ply3[i] = atoi(v4[i].c_str());
+    }
+    std::vector<std::string> v5 = split (ip4_load, '.');
+    for (int i = 0; i < 4; i++)
+    {
+        vec4i_ply4[i] = atoi(v5[i].c_str());
+    }
+  
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
     {
@@ -263,7 +327,6 @@ int main(int argc, char *argv[])
     }
     my_texture = IMG_LoadTexture(bg_renderer, "Assets/Images/battlezone.png");
 
-
     //Setup Sound
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
@@ -310,31 +373,8 @@ int main(int argc, char *argv[])
     style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
 
 
-    //Read ip and instructions files before the starting the loop
-    std::string ip_load=read_file(std::ifstream("ip_server.txt"));
-    std::string ip1_load=read_file(std::ifstream("ip1.txt"));
-    std::string ip2_load=read_file(std::ifstream("ip2.txt"));
-    std::string ip3_load=read_file(std::ifstream("ip3.txt"));
-    std::string ip4_load=read_file(std::ifstream("ip4.txt"));
-    std::string instructions=read_file(std::ifstream("instructions.txt"));
-    std::string readme=read_file(std::ifstream("README.md"));
-    std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
-    
-
-    std::string file_debug = exec("file imgui-demo");
-    std::string ldd_debug = exec("ldd imgui-demo");
-    std::string log_debug=read_file(std::ifstream("log.txt"));
-
-    // Vector for IP Address Input  ImGui::DragInt4
-    static int vec4i_svr1[] = { 127, 0, 0, 1 };
-    static int vec4i_ply1[] = { 127, 0, 0, 2 };
-    static int vec4i_ply2[] = { 127, 0, 0, 2 };
-    static int vec4i_ply3[] = { 127, 0, 0, 3 };
-    static int vec4i_ply4[] = { 127, 0, 0, 4 }; 
-
-    //const ImU8  u8_min = 1, u8_max = 4;
-    static int iplayer=1;
-
+   
+ 
     // Main loop
     
     while (!done)
@@ -379,13 +419,13 @@ int main(int argc, char *argv[])
                 {
                     
                 ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
-                std::string texts[6] = {"Navigation", "Game Instructions", "Screenshot" ,"License", "Debug Info","Game Options"};
+                std::string texts[5] = {"Navigation", "Game Instructions", "Screenshot" ,"License", "Debug Info"};
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();                    
 
                 //  for (int i : texts)
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 5; i++)
                     {
                         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                         char label[128];
@@ -398,7 +438,13 @@ int main(int argc, char *argv[])
                 if (ImGui::Button("Start Game - L1")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
                     {
                         done = true;
+                        show_ip_window = false;
                         return 0;
+                    }
+                if (ImGui::Button("Game Options - L2")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
+                    {
+                        show_ip_window = true;
+                        //return 0;
                     }  
                 ImGui::EndChild();
                 }
@@ -410,11 +456,11 @@ int main(int argc, char *argv[])
                     ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
-               /*     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+                    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
                     {
                         Mix_PlayChannel( -1, gHigh, 0 );
                     }
-                    */
+                    
 
                     if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
                     {
@@ -453,15 +499,35 @@ int main(int argc, char *argv[])
                                 ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
                                 ImGui::Separator();
                             }
-                            if (selected == 5)
-                            {
+
+                            ImGui::EndTabItem();
+                            ImGui::Separator();
                             
+                              
+                        }
+                     
+                    ImGui::EndTabBar();   
+                    }
+
+                    ImGui::EndChild();      
+                    ImGui::EndGroup();                    
+                }
+            }
+            ImGui::End();
+        }
+
+        if (show_ip_window)
+        {
+
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+            ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+            ImGui::Begin("Change IP Address", &show_ip_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            
                                 //static char str0[128] = "Edit Text Test";
                                 //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
                         
                                 // Creates space
-                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
-                                ImGui::TextWrapped("%s",instructions.c_str());
+                                Markdown(instructions);
                                 // Creates space
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
                                 ImGui::Text("Number of Players:-");
@@ -471,16 +537,9 @@ int main(int argc, char *argv[])
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
     
                                 //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-                                ImGui::Text("Currently set Server IP Address: %s",ip_load.c_str());
+                                ImGui::Text("Currently set Server IP Address: %s",ips_load.c_str());
                                 ImGui::Text("Set Server IP Adress:-");
                                 ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
-                                 if (ImGui::Button("Save Shown IP Addresses Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                 
-                                    {
-                                        ip_load = write_file("ip_server.txt",iplayer, vec4i_svr1);  
-                                        done = true;
-                                        return 120;
-                                    }
                                 if (iplayer==1)
                                 {
                                     ImGui::Separator();
@@ -489,8 +548,9 @@ int main(int argc, char *argv[])
                                    
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
-                                        ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                        ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                         done = true;
+                                        show_ip_window =false;
                                         return 121;
                                     }
                                 }
@@ -505,9 +565,10 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
+                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
                                     done = true;
+                                    show_ip_window =false;
                                     return 122;
                                     }
                                 }
@@ -525,10 +586,11 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                                    ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                                    ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
                                     done = true;
+                                    show_ip_window =false;
                                     return 123;    
                                     }
                                 }
@@ -544,34 +606,22 @@ int main(int argc, char *argv[])
                                     ImGui::Text("Currently set Player 3 IP Address: %s", ip3_load.c_str());
                                     ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
                                     ImGui::Separator();
-                                   ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
+                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
                                     ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ip_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                                    ip_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
-                                    ip_load = write_file("ip4.txt",iplayer, vec4i_ply4);
+                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                                    ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                                    ip4_load = write_file("ip4.txt",iplayer, vec4i_ply4);
                                     done = true;
+                                    show_ip_window =false;
                                     return 124;
                                     }
                                 }
-                            }
-                          
-                            ImGui::EndTabItem();
-                            ImGui::Separator();
-                            
-                              
-                        }
-                     
-                    ImGui::EndTabBar();   
-                    }
 
-                    ImGui::EndChild();      
-                    ImGui::EndGroup();                    
-                }
-            }
+
             ImGui::End();
         }
 
