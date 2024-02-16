@@ -548,6 +548,7 @@ int main(int argc, char *argv[])
                                    
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
+                                        ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
                                         ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                         done = true;
                                         show_ip_window =false;
@@ -565,6 +566,7 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
                                     ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                     ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
                                     done = true;
@@ -586,6 +588,7 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
                                     ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                     ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
                                     ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
@@ -611,6 +614,7 @@ int main(int argc, char *argv[])
                                     if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                                     {
                                     //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
                                     ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
                                     ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
                                     ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
