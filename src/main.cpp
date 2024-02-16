@@ -244,7 +244,7 @@ class InputParser{
 int main(int argc, char *argv[])
 {
     static int iplayer= 1;
-   InputParser input(argc, argv);
+    InputParser input(argc, argv);
     if(input.cmdOptionExists("-h")){
         std::cout <<"-h to show all options" << std::endl;
         std::cout <<"-n Players 1 to 4" << std::endl;
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         int ptest = atoi(players.c_str());
         if (ptest >0 && ptest <5)
         {
-         std::cout << "Players " << players;
+         //std::cout << "Players " << players;
          iplayer=ptest;
         }
    
@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
                                 ImGui::Text("Number of Players:-");
                                 ImGui::SameLine();
                                 //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
-                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, 4);
+                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, iplayer);
                                 ImGui::Dummy(ImVec2(0.0f, 20.0f));
     
                                 //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
