@@ -239,17 +239,7 @@ class InputParser{
     private:
         std::vector <std::string> tokens;
 };
-SDL_GameController *findController() 
-    {
-    for (int i = 0; i < SDL_NumJoysticks(); i++) 
-        {
-        if (SDL_IsGameController(i)) {
-            return SDL_GameControllerOpen(i);
-        }
-     }
 
-    return nullptr;
-    }
 // Main code
 int main(int argc, char *argv[])
 {
@@ -276,12 +266,13 @@ int main(int argc, char *argv[])
     static int vec4i_ply2[3];
     static int vec4i_ply3[3];
     static int vec4i_ply4[3]; 
-    static int iplayer = 1;
+    static int iplayer = 4;
     static int mplayer = 4;
+    int selected = 0;
     InputParser input(argc, argv);
     if(input.cmdOptionExists("-h")){
         std::cout <<"-h to show all options" << std::endl;
-        std::cout <<"-n Max Players 1 to 4" << std::endl;
+        std::cout <<"-p Max Players 1 to 4" << std::endl;
         return 0;
     }
     const std::string &players = input.getCmdOption("-p");
@@ -292,7 +283,8 @@ int main(int argc, char *argv[])
         {
          //std::cout << "Players " << players;
          mplayer=ptest;
-         std::cout << mplayer;
+         iplayer=ptest;
+        // std::cout << mplayer;
         }
    
     }
@@ -305,11 +297,9 @@ int main(int argc, char *argv[])
    
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
-  
-    
+
     //const ImU8  u8_min = 1, u8_max = 4;
     
-
     std::vector<std::string> v1 = split (ips_load, '.');
     for (int i = 0; i < 4; i++)
     {
@@ -335,7 +325,9 @@ int main(int argc, char *argv[])
     {
         vec4i_ply4[i] = atoi(v5[i].c_str());
     }
-  
+ 
+ 
+
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
     {
@@ -346,11 +338,6 @@ int main(int argc, char *argv[])
     SDL_Texture* tex_screenshot;
     int my_image_width, my_image_height;
 
-    
-
-
-    //Controllers?
-    SDL_GameController *controller = findController();
 
     // From 2.0.18: Enable native IME.
     #ifdef SDL_HINT_IME_SHOW_UI
@@ -419,7 +406,7 @@ int main(int argc, char *argv[])
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
     //Disabled so keys can be mapped with gptokeyb instead
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -439,6 +426,7 @@ int main(int argc, char *argv[])
     //Default Font Colour
     ImGuiStyle* style = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
+    
 
     // Main loop
     while (!done)
@@ -448,28 +436,38 @@ int main(int argc, char *argv[])
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        SDL_Event event;
-        SDL_StartTextInput();
 
+        SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
-        
-            if (event.type == SDL_CONTROLLERBUTTONDOWN)
-                if (controller && event.cdevice.which == SDL_JoystickInstanceID(
-            SDL_GameControllerGetJoystick(controller))) {
-        switch (event.cbutton.button) {
-        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_X:
-            std::cerr << "X pressed!" << std::endl;
-            break;
+
+            switch (event.type) {
+                case SDL_QUIT:
+                    done = true;
+                    break;
+                case SDL_WINDOWEVENT: // && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window):
+                    if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window)){
+                        done =true;
+                    }
+                        break;
+                case SDL_CONTROLLERBUTTONDOWN:
+                    switch (event.cbutton.button) {
+                        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START:
+                        //std::cerr << "Start pressed!" << std::endl;
+                            done = true;
+                            show_ip_window = false;
+                            return 0;
+                            break;
+                        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP:
+                        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                            Mix_PlayChannel( -1, gHigh, 0 );
+                            break;
+                    }
+                break;
+            }
+
         }
-    }
-            if (event.type == SDL_QUIT)
-                done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
-                done = true;
-        }
-        
        
         // Start the Dear ImGui frame
         ImGui_ImplSDLRenderer2_NewFrame();
@@ -480,43 +478,39 @@ int main(int argc, char *argv[])
         // Demonstrate create a window with multiple child windows.
         {
             bool p_open = true;
-            static int selected = 0;
+            
             //Full Screen IMGUI window
             ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::SetNextWindowBgAlpha(0.15f);
 
             //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("Game Launcher - Press L1 to start", &p_open))
-            {
-
+            if (ImGui::Begin("Portmaster - Game Launcher", &p_open)){
                 // Left  Container    
-                {
-                    
+                {              
                 ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
-                std::string texts[5] = {"Navigation", "Game Instructions", "Screenshot" ,"License", "Debug Info"};
+                std::string texts[4] = {"Game Instructions", "Screenshot" ,"License", "Debug Info"};
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();                    
 
                 //  for (int i : texts)
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 4; i++)
                     {
                         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                         char label[128];
                         sprintf(label, texts[i].c_str());
                         if (ImGui::Selectable(label, selected == i))
                             selected = i;
-                    
                     }
 
-                if (ImGui::Button("Start Game - L1")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
+                if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
                     {
                         done = true;
                         show_ip_window = false;
                         return 0;
                     }
-                if (ImGui::Button("Game Options - L2")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
+                if (ImGui::Button("Game Options")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
                     {
                         show_ip_window = true;
                         //return 0;
@@ -535,23 +529,17 @@ int main(int argc, char *argv[])
                     {
                         Mix_PlayChannel( -1, gHigh, 0 );
                     }
-                    
-
-                    if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+                    if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_AutoSelectNewTabs))
                     {
 
                         if (ImGui::BeginTabItem("Description"))
                         {
+                           
                             if (selected == 0)
-                            {
-                                Markdown(instructions);
-
-                            }
-                            if (selected == 1)
                             {
                                 Markdown(readme);
                             }
-                            if (selected == 2)
+                            if (selected == 1)
                             {
                                 // Load screenshot image.
                                 ImGui::Text("ID: 0123456789");
@@ -560,11 +548,11 @@ int main(int argc, char *argv[])
                                 ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
                             }
 
-                             if (selected == 3)
+                             if (selected ==2)
                             {
                                 ImGui::TextWrapped("Output: %s", licence.c_str());
                             }
-                            if (selected == 4)
+                            if (selected == 3)
                             {
                                 ImGui::Separator();
                                 ImGui::TextWrapped("log file output: %s", log_debug.c_str());
@@ -574,11 +562,8 @@ int main(int argc, char *argv[])
                                 ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
                                 ImGui::Separator();
                             }
-
                             ImGui::EndTabItem();
-                            ImGui::Separator();
-                            
-                              
+                            ImGui::Separator();                        
                         }
                      
                     ImGui::EndTabBar();   
@@ -598,107 +583,107 @@ int main(int argc, char *argv[])
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::Begin("Change IP Address", &show_ip_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             
-                                //static char str0[128] = "Edit Text Test";
-                                //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
-                        
-                                // Creates space
-                                Markdown(instructions);
-                                // Creates space
-                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
-                                ImGui::Text("Number of Players:-");
-                                ImGui::SameLine();
-                                //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
-                                ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, mplayer);
-                                ImGui::Dummy(ImVec2(0.0f, 20.0f));
-    
-                                //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
-                                ImGui::Text("Currently set Server IP Address: %s",ips_load.c_str());
-                                ImGui::Text("Set Server IP Adress:-");
-                                ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
-                                if (iplayer==1)
-                                {
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip1_load.c_str());
-                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
-                                   
-                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                    {
-                                        ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                                        ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                        done = true;
-                                        show_ip_window =false;
-                                        return 121;
-                                    }
-                                }
-                                if (iplayer==2)
-                                {
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
-                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip2_load.c_str());
-                                    ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
-                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                    {
-                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
-                                    done = true;
-                                    show_ip_window =false;
-                                    return 122;
-                                    }
-                                }
-                                if (iplayer==3)
-                                {
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
-                                    ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
-                                    ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
-                                    ImGui::Separator();
-                                    ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip3_load.c_str());
-                                    ImGui::DragInt4("Player 3 IP", vec4i_ply3, 1, 1, 255);
-                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                    {
-                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                                    ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
-                                    done = true;
-                                    show_ip_window =false;
-                                    return 123;    
-                                    }
-                                }
-                                if (iplayer==4)
-                                {
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
-                                    ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
-                                    ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player 3 IP Address: %s", ip3_load.c_str());
-                                    ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
-                                    ImGui::Separator();
-                                    ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
-                                    ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
-                                    if (ImGui::Button("Save IP Address Press R1",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                                    {
-                                    //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                                    ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                                    ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
-                                    ip4_load = write_file("ip4.txt",iplayer, vec4i_ply4);
-                                    done = true;
-                                    show_ip_window =false;
-                                    return 124;
-                                    }
-                                }
+            //static char str0[128] = "Edit Text Test";
+            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
+
+            // Creates space
+            Markdown(instructions);
+            // Creates space
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+            ImGui::Text("Number of Players:-");
+            ImGui::SameLine();
+            //ImGui::SliderScalar("", ImGuiDataType_U8, &iplayer, &u8_min, &u8_max, "%u");
+            ImGui::DragInt("##items_count", &iplayer, 0.01f, 1, mplayer);
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+            //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
+            ImGui::Text("Currently set Server IP Address: %s",ips_load.c_str());
+            ImGui::Text("Set Server IP Adress:-");
+            ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
+            if (iplayer==1)
+            {
+                ImGui::Separator();
+                ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip1_load.c_str());
+                ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
+                
+                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                {
+                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
+                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                    done = true;
+                    show_ip_window =false;
+                    return 121;
+                }
+            }
+            if (iplayer==2)
+            {
+                ImGui::Separator();
+                ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
+                ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
+                ImGui::Separator();
+                ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip2_load.c_str());
+                ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
+                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                {
+                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
+                done = true;
+                show_ip_window =false;
+                return 122;
+                }
+            }
+            if (iplayer==3)
+            {
+                ImGui::Separator();
+                ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
+                ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
+                ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
+                ImGui::Separator();
+                ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
+                ImGui::Separator();
+                ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip3_load.c_str());
+                ImGui::DragInt4("Player 3 IP", vec4i_ply3, 1, 1, 255);
+                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                {
+                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                done = true;
+                show_ip_window =false;
+                return 123;    
+                }
+            }
+            if (iplayer==4)
+            {
+                ImGui::Separator();
+                ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
+                ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
+                ImGui::Separator();
+                ImGui::Text("Currently set Player 2 IP Address: %s", ip2_load.c_str());
+                ImGui::DragInt4("Player2 IP", vec4i_ply2, 1, 1, 255);
+                ImGui::Separator();
+                ImGui::Text("Currently set Player 3 IP Address: %s", ip3_load.c_str());
+                ImGui::DragInt4("Player3 IP", vec4i_ply3, 1, 1, 255);
+                ImGui::Separator();
+                ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
+                ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
+                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+                {
+                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
+                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
+                ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                ip4_load = write_file("ip4.txt",iplayer, vec4i_ply4);
+                done = true;
+                show_ip_window =false;
+                return 124;
+                }
+            }
 
 
             ImGui::End();
