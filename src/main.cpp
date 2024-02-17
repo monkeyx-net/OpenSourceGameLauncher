@@ -239,7 +239,17 @@ class InputParser{
     private:
         std::vector <std::string> tokens;
 };
+SDL_GameController *findController() 
+    {
+    for (int i = 0; i < SDL_NumJoysticks(); i++) 
+        {
+        if (SDL_IsGameController(i)) {
+            return SDL_GameControllerOpen(i);
+        }
+     }
 
+    return nullptr;
+    }
 // Main code
 int main(int argc, char *argv[])
 {
@@ -336,11 +346,17 @@ int main(int argc, char *argv[])
     SDL_Texture* tex_screenshot;
     int my_image_width, my_image_height;
 
+    
+
+
+    //Controllers?
+    SDL_GameController *controller = findController();
 
     // From 2.0.18: Enable native IME.
     #ifdef SDL_HINT_IME_SHOW_UI
       SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
     #endif
+
 
     // Create window with SDL_Renderer graphics context
     //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
@@ -424,11 +440,7 @@ int main(int argc, char *argv[])
     ImGuiStyle* style = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
 
-
-   
- 
     // Main loop
-    
     while (!done)
     {
         // Poll and handle events (inputs, window resize, etc.)
@@ -437,10 +449,21 @@ int main(int argc, char *argv[])
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         SDL_Event event;
+        SDL_StartTextInput();
 
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
+        
+            if (event.type == SDL_CONTROLLERBUTTONDOWN)
+                if (controller && event.cdevice.which == SDL_JoystickInstanceID(
+            SDL_GameControllerGetJoystick(controller))) {
+        switch (event.cbutton.button) {
+        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_X:
+            std::cerr << "X pressed!" << std::endl;
+            break;
+        }
+    }
             if (event.type == SDL_QUIT)
                 done = true;
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
