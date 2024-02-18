@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
                         break;
                 case SDL_CONTROLLERBUTTONDOWN:
                     switch (event.cbutton.button) {
-                        case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START:
+                        /*case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START:
                         //std::cerr << "Start pressed!" << std::endl;
                             done = true;
                             show_ip_window = false;
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
                         case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP:
                         case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN:
                             Mix_PlayChannel( -1, gHigh, 0 );
-                            break;
+                            break;*/
                     }
                 break;
             }
@@ -483,6 +483,7 @@ int main(int argc, char *argv[])
             ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::SetNextWindowBgAlpha(0.15f);
+            ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
 
             //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
             if (ImGui::Begin("Portmaster - Game Launcher", &p_open)){
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
                             selected = i;
                     }
 
-                if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_F1)))
+                if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_GamepadStart)))
                     {
                         done = true;
                         show_ip_window = false;
@@ -525,7 +526,8 @@ int main(int argc, char *argv[])
                     ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
-                    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) | ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+                    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) 
+                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadDown)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadUp)))
                     {
                         Mix_PlayChannel( -1, gHigh, 0 );
                     }
