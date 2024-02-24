@@ -1,0 +1,7 @@
+## Navigation
+
+
+Navigate D pad and sticks 
+
+A Button to select and change values
+

@@ -42,6 +42,7 @@ static struct argp_option options[] = {
     {"height", 'h', "Height", 0,"Screen Height"},
     {"scale", 's', "Scale", 0,"Screen Scale"},
     {"players", 'p', "Players", 0,"Number of players 0 - 4. 0 players prevents showing the IP Dialogue"},
+    {"title", 't', "Game", 0,"Game Title"},
     {0}
 };
 
@@ -54,6 +55,7 @@ struct arguments{
     char *height;
     char *scale;
     char *players;
+    char *title;
 };
 
 
@@ -77,6 +79,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state){
             break;
          case 'p':
             arguments->players = arg;
+            break;
+         case 't':
+            arguments->title = arg;
             break;
         case ARGP_KEY_ARG: 
             // Too many arguments.
@@ -333,9 +338,13 @@ int main(int argc, char *args[])
     arguments.height = NULL;
     arguments.scale = NULL;
     arguments.players = NULL;
+    arguments.title = NULL;
 
     // parse the cli arguments.
     argp_parse(&argp, argc, args, 0, 0, &arguments);
+
+
+    // Do as function to process args?
     if (arguments.players)
     {
      int ptemp = atoi(arguments.players);
@@ -351,6 +360,13 @@ int main(int argc, char *args[])
             return -1;
         }    
     }
+    if (arguments.title)
+    {
+
+    }
+
+
+
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
 
@@ -540,9 +556,13 @@ int main(int argc, char *args[])
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::SetNextWindowBgAlpha(0.15f);
             ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
-
             //ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("Portmaster - Game Launcher", &p_open)){
+
+            // Assign Window Title
+            char buf[120];
+            sprintf(buf, "Portmaster - Game Launcher - %s", arguments.title);
+            
+            if (ImGui::Begin(buf, &p_open)){
                 // Left  Container    
                 {              
                 ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
@@ -583,7 +603,7 @@ int main(int argc, char *args[])
                     ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
-                    Mix_Volume(-1, 3);
+                    Mix_Volume(-1, 1);
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) 
                     || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadDown)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadUp)))
                     {
