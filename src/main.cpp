@@ -16,11 +16,91 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-
+#include <argp.h>
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
+
+
+// need to mention a version string.
+const char *argp_program_version = "Portmaster Game Options 0.0.12";
+
+// documentation string that will be displayed in the help section.
+static char doc[] = "This is an onging deveopment. Please feedback suggestions and changes via the github page. https://github.com/monkeyx-net/Imgui4Portmaster";
+
+// email address for bug reporting.
+const char *argp_program_bug_address = "tim@monkeyx.net";
+
+// argument list for doc. This will be displayed on --help
+static char args_doc[] = "-w Screen width, -p players etc";
+
+// cli argument availble options.
+static struct argp_option options[] = {
+    {"verbose", 'v', 0, 0, "Produce verbose output"},
+    {"width", 'w', "Width", 0,"Screen Width"},
+    {"height", 'h', "Height", 0,"Screen Height"},
+    {"scale", 's', "Scale", 0,"Screen Scale"},
+    {"players", 'p', "Players", 0,"Number of players 0 - 4. 0 players prevents showing the IP Dialogue"},
+    {0}
+};
+
+
+// define a struct to hold the arguments.
+struct arguments{
+    int  verbose;
+    char *args[1];
+    char *width;
+    char *height;
+    char *scale;
+    char *players;
+};
+
+
+// define a function which will parse the args.
+static error_t parse_opt(int key, char *arg, struct argp_state *state){
+
+    struct arguments *arguments = (struct arguments*)state->input;
+    switch(key){
+
+        case 'v':
+            arguments->verbose = 1;
+            break;
+        case 'w':
+            arguments->width = arg;
+            break;
+        case 'h':
+            arguments->height = arg;
+            break;
+        case 's':
+            arguments->scale = arg;
+            break;
+         case 'p':
+            arguments->players = arg;
+            break;
+        case ARGP_KEY_ARG: 
+            // Too many arguments.
+            if(state->arg_num > 0)
+                argp_usage(state);
+            arguments->args[state->arg_num] = arg;
+            break;
+
+        case ARGP_KEY_END:
+            // Not enough arguments.
+            if(state->arg_num < 0)
+                argp_usage(state);
+            break;
+
+        default:
+            return ARGP_ERR_UNKNOWN;
+    }
+
+    return 0;
+}
+
+
+// initialize the argp struct. Which will be used to parse and use the args.
+static struct argp argp = {options, parse_opt, args_doc, doc};
 
 inline ImGui::MarkdownImageData ImageCallback( ImGui::MarkdownLinkCallbackData data_ );
 
@@ -52,7 +132,6 @@ inline ImGui::MarkdownImageData ImageCallback( ImGui::MarkdownLinkCallbackData d
 
     return imageData;
 }
-
 
 void LoadFonts( float fontSize_ = 12.0f )
 {
@@ -99,7 +178,6 @@ void ExampleMarkdownFormatCallback( const ImGui::MarkdownFormatInfo& markdownFor
     }
     }
 }
-
 
 void Markdown( const std::string& markdown_ )
 {
@@ -215,40 +293,12 @@ std::vector<std::string> split (const std::string &s, char delim)
 
     return result;
 }
-class InputParser{
-    public:
-        InputParser (int &argc, char **argv){
-            for (int i=1; i < argc; ++i)
-                this->tokens.push_back(std::string(argv[i]));
-        }
-       
-        const std::string& getCmdOption(const std::string &option) const{
-            std::vector<std::string>::const_iterator itr;
-            itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
-            if (itr != this->tokens.end() && ++itr != this->tokens.end()){
-                return *itr;
-            }
-            static const std::string empty_string("");
-            return empty_string;
-        }
-        
-        bool cmdOptionExists(const std::string &option) const{
-            return std::find(this->tokens.begin(), this->tokens.end(), option)
-                   != this->tokens.end();
-        }
-    private:
-        std::vector <std::string> tokens;
-};
+
 
 // Main code
-int main(int argc, char *argv[])
+int main(int argc, char *args[])
 {
-    bool done = false;
-    bool show_ip_window = false;
-    bool sshot = false;
-    Mix_Chunk* gHigh = NULL;
-
-     //Read ip and instructions files before the starting the loop
+        //Read ip and instructions files before the starting the loop
     std::string ips_load=read_file(std::ifstream("ip_server.txt"));
     std::string ip1_load=read_file(std::ifstream("ip1.txt"));
     std::string ip2_load=read_file(std::ifstream("ip2.txt"));
@@ -269,37 +319,44 @@ int main(int argc, char *argv[])
     static int iplayer = 4;
     static int mplayer = 4;
     int selected = 0;
-    InputParser input(argc, argv);
-    if(input.cmdOptionExists("-h")){
-        std::cout <<"-h to show all options" << std::endl;
-        std::cout <<"-p Max Players 1 to 4" << std::endl;
-        return 0;
-    }
-    const std::string &players = input.getCmdOption("-p");
-    if (!players.empty())
+    bool full_debug = false; 
+    bool done = false;
+    bool show_ip_window = false;
+    bool sshot = false;
+    Mix_Chunk* gHigh = NULL;
+    // create a new struct to hold arguments.
+    struct arguments arguments;
+
+    // set the default values for all of the args.
+    arguments.verbose = 0;
+    arguments.width = NULL;
+    arguments.height = NULL;
+    arguments.scale = NULL;
+    arguments.players = NULL;
+
+    // parse the cli arguments.
+    argp_parse(&argp, argc, args, 0, 0, &arguments);
+    if (arguments.players)
     {
-        int ptest = atoi(players.c_str());
-        if (ptest >0 && ptest <5)
+     int ptemp = atoi(arguments.players);
+     if (ptemp >0 && ptemp <5)
         {
          //std::cout << "Players " << players;
-         mplayer=ptest;
-         iplayer=ptest;
-        // std::cout << mplayer;
+         mplayer=ptemp;
+         iplayer=ptemp;
         }
-   
+    else
+        {
+            printf("Wrong number of players selected: %d\n Select between 0 and 4", ptemp);
+            return -1;
+        }    
     }
-    
-    const std::string &filename = input.getCmdOption("-f");
-    if (!filename.empty()){
-        std::cout << "File? " << filename ;
-    }
-    //return 0; 
-   
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
 
     //const ImU8  u8_min = 1, u8_max = 4;
     
+    // Make this a function!
     std::vector<std::string> v1 = split (ips_load, '.');
     for (int i = 0; i < 4; i++)
     {
@@ -327,7 +384,6 @@ int main(int argc, char *argv[])
     }
  
  
-
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
     {
@@ -493,7 +549,18 @@ int main(int argc, char *argv[])
                 std::string texts[4] = {"Game Instructions", "Screenshot" ,"License", "Debug Info"};
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
-                    ImGui::SetKeyboardFocusHere();                    
+                    ImGui::SetKeyboardFocusHere();
+                 if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_GamepadStart)))
+                    {
+                        done = true;
+                        show_ip_window = false;
+                        return 0;
+                    }
+                if (ImGui::Button("Game Options")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
+                    {
+                        show_ip_window = true;
+                        //return 0;
+                    }                   
 
                 //  for (int i : texts)
                 for (int i = 0; i < 4; i++)
@@ -505,17 +572,7 @@ int main(int argc, char *argv[])
                             selected = i;
                     }
 
-                if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_GamepadStart)))
-                    {
-                        done = true;
-                        show_ip_window = false;
-                        return 0;
-                    }
-                if (ImGui::Button("Game Options")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
-                    {
-                        show_ip_window = true;
-                        //return 0;
-                    }  
+           
                 ImGui::EndChild();
                 }
                 ImGui::SameLine();
@@ -526,6 +583,7 @@ int main(int argc, char *argv[])
                     ImGui::BeginChild("item view", ImVec2(0,0));
                     ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
+                    Mix_Volume(-1, 3);
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) 
                     || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadDown)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_GamepadDpadUp)))
                     {
@@ -556,13 +614,17 @@ int main(int argc, char *argv[])
                             }
                             if (selected == 3)
                             {
+                                ImGui::Checkbox("Show Full Debug Info", &full_debug);
                                 ImGui::Separator();
                                 ImGui::TextWrapped("log file output: %s", log_debug.c_str());
-                                ImGui::Separator();
-                                ImGui::TextWrapped("file output: %s", file_debug.c_str());
-                                ImGui::Separator();
-                                ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
-                                ImGui::Separator();
+                                if (full_debug)
+                                {
+                                    ImGui::Separator();
+                                    ImGui::TextWrapped("file output: %s", file_debug.c_str());
+                                    ImGui::Separator();
+                                    ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
+                                    ImGui::Separator();
+                                }
                             }
                             ImGui::EndTabItem();
                             ImGui::Separator();                        
@@ -685,6 +747,10 @@ int main(int argc, char *argv[])
                 show_ip_window =false;
                 return 124;
                 }
+            }
+            if (ImGui::Button("Close and no Save",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
+            {
+                show_ip_window =false;
             }
 
 
