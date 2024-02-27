@@ -7,6 +7,7 @@
 #include "imgui_markdown.h" 
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
+#include "keys.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -17,6 +18,7 @@
 #include <string>
 #include <algorithm>
 #include <argp.h>
+
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
@@ -329,6 +331,12 @@ int main(int argc, char *args[])
     bool show_ip_window = false;
     bool sshot = false;
     Mix_Chunk* gHigh = NULL;
+
+
+    std::string input;
+
+
+
     // create a new struct to hold arguments.
     struct arguments arguments;
 
@@ -364,8 +372,6 @@ int main(int argc, char *args[])
     {
 
     }
-
-
 
     SDL_Texture *my_texture = NULL;
     //SDL_Renderer *renderer = NULL;
@@ -498,7 +504,6 @@ int main(int argc, char *args[])
     //Default Font Colour
     ImGuiStyle* style = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text] = ImVec4(0.29f, 0.96f, 0.15f, 1.0f);
-    
 
     // Main loop
     while (!done)
@@ -523,6 +528,15 @@ int main(int argc, char *args[])
                         done =true;
                     }
                         break;
+                case SDL_TEXTINPUT:
+                    input += event.text.text;
+                    std::cout << event.text.text;
+                    break;
+			    case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == SDLK_BACKSPACE && input.size()) {
+                        input.pop_back();
+                    }
+                    break;
                 /*case SDL_CONTROLLERBUTTONDOWN:
                     switch (event.cbutton.button) {
                         case SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START:
@@ -663,13 +677,27 @@ int main(int argc, char *args[])
         if (show_ip_window)
         {
 
+
+            int keyboardFocus = 0;
+
             ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::Begin("Change IP Address", &show_ip_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            
-            //static char str0[128] = "Edit Text Test";
-            //ImGui::InputText("##Input", str0, IM_ARRAYSIZE(str0));
 
+            static char buf1[128] = "Edit Text Test";
+           if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive())
+        	ImGui::SetKeyboardFocusHere(keyboardFocus);
+            
+            static ImGui::VirtualKeyboardFlags virtualKeyboardFlags = ImGui::VirtualKeyboardFlags_ShowBaseBlock;
+            //ShowKeypadBlock //ShowBaseBlock // ShowAllBlocks // ShowAllBlocks displays all the keyboard parts
+            //SDL_StartTextInput() ;
+
+            ImGui::InputText("##Input", buf1, IM_ARRAYSIZE(buf1));
+            
+
+            ImGui::VirtualKeyboard(virtualKeyboardFlags, ImGui::KLL_QWERTY,ImGui::KPL_ISO);        
+       
+            
             // Creates space
             Markdown(instructions);
             // Creates space

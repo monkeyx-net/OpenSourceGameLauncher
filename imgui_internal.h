@@ -239,7 +239,7 @@ namespace ImStb
 #define IMGUI_DEBUG_LOG_INPUTROUTING(...) do{if (g.DebugLogFlags & ImGuiDebugLogFlags_EventInputRouting)IMGUI_DEBUG_LOG(__VA_ARGS__); } while (0)
 
 // Static Asserts
-#define IM_STATIC_ASSERT(_COND)         static_assert(_COND, "")
+#define IM_STATIC_ASSERT(_COND)         static_assert(_COND, "Wrong Label Size")
 
 // "Paranoid" Debug Asserts are meant to only be enabled during specific debugging/work, otherwise would slow down the code too much.
 // We currently don't have many of those so the effect is currently negligible, but onward intent to add more aggressive ones in the code.
