@@ -677,16 +677,11 @@ int main(int argc, char *args[])
         if (show_ip_window)
         {
 
-
-            int keyboardFocus = 0;
-
             ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::Begin("Change IP Address", &show_ip_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 
             static char buf1[128] = "Edit Text Test";
-           if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive())
-        	ImGui::SetKeyboardFocusHere(keyboardFocus);
             
             static ImGui::VirtualKeyboardFlags virtualKeyboardFlags = ImGui::VirtualKeyboardFlags_ShowBaseBlock;
             //ShowKeypadBlock //ShowBaseBlock // ShowAllBlocks // ShowAllBlocks displays all the keyboard parts
