@@ -530,7 +530,7 @@ int main(int argc, char *args[])
                         break;
                 case SDL_TEXTINPUT:
                     input += event.text.text;
-                    std::cout << event.text.text;
+                    std::cout  << "SDL Key: " << event.text.text << std::endl;
                     break;
 			    case SDL_KEYDOWN:
                     if (event.key.keysym.sym == SDLK_BACKSPACE && input.size()) {

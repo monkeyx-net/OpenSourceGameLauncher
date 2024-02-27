@@ -421,7 +421,7 @@ ImGuiKey VirtualKeyboard(VirtualKeyboardFlags flags,KeyboardLogicalLayout logica
     ImGui::Dummy(ImVec2(board_max.x - board_min.x, board_max.y - board_min.y));
     if (mouseEnabled)   {
         if (!ImGui::IsItemClicked(ImGuiMouseButton_Left)) mouseClickedKey = ImGuiKey_COUNT;
-        //else {printf("keyClicked: %s\n",mouseClickedKey==ImGuiKey_None?"None":ImGui::GetKeyName(mouseClickedKey));fflush(stdout);}
+        else {printf("keyClicked: %s\n",mouseClickedKey==ImGuiKey_None?"None":ImGui::GetKeyName(mouseClickedKey));fflush(stdout);}
     }
     if (keyboardClickedKey!=ImGuiKey_COUNT)    {
         if (mouseClickedKey==ImGuiKey_COUNT || mouseClickedKey==ImGuiKey_None) return keyboardClickedKey;
