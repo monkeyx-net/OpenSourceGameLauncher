@@ -91,7 +91,7 @@ ImGuiKey VirtualKeyboard(VirtualKeyboardFlags flags,KeyboardLogicalLayout logica
     static const char* KeyLabels[ImGuiKey_NamedKey_COUNT] =  {};
 
     // USAGE:
-//#           define IMIMPL_KEY_LABEL(key)  ((key==ImGuiKey_None)?"":KeyLabels[key-ImGuiKey_NamedKey_BEGIN]):
+    //#define IMIMPL_KEY_LABEL(key)  ((key==ImGuiKey_None)?"":KeyLabels[key-ImGuiKey_NamedKey_BEGIN]):
     //IM_ASSERT(key>=ImGuiKey_NamedKey_BEGIN && key<ImGuiKey_NamedKey_END);
 
     struct KeyLayoutName {ImGuiKey key;float width;};
@@ -424,8 +424,13 @@ ImGuiKey VirtualKeyboard(VirtualKeyboardFlags flags,KeyboardLogicalLayout logica
         else {printf("keyClicked: %s\n",mouseClickedKey==ImGuiKey_None?"None":ImGui::GetKeyName(mouseClickedKey));fflush(stdout);}
     }
     if (keyboardClickedKey!=ImGuiKey_COUNT)    {
-        if (mouseClickedKey==ImGuiKey_COUNT || mouseClickedKey==ImGuiKey_None) return keyboardClickedKey;
-        else return mouseClickedKey;
+        if (mouseClickedKey==ImGuiKey_COUNT || mouseClickedKey==ImGuiKey_None) {
+            printf("keyPressed %s\n",keyboardClickedKey==ImGuiKey_None?"None":ImGui::GetKeyName(keyboardClickedKey));fflush(stdout);
+            return keyboardClickedKey;
+        }
+        else{
+            return mouseClickedKey;
+        }
     }
     else return mouseClickedKey;
 }

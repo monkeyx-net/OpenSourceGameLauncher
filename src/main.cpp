@@ -18,6 +18,7 @@
 #include <string>
 #include <algorithm>
 #include <argp.h>
+#include <fstream>
 
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
@@ -48,7 +49,6 @@ static struct argp_option options[] = {
     {0}
 };
 
-
 // define a struct to hold the arguments.
 struct arguments{
     int  verbose;
@@ -59,7 +59,6 @@ struct arguments{
     char *players;
     char *title;
 };
-
 
 // define a function which will parse the args.
 static error_t parse_opt(int key, char *arg, struct argp_state *state){
@@ -104,7 +103,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state){
 
     return 0;
 }
-
 
 // initialize the argp struct. Which will be used to parse and use the args.
 static struct argp argp = {options, parse_opt, args_doc, doc};
@@ -202,6 +200,18 @@ void Markdown( const std::string& markdown_ )
     ImGui::Markdown( markdown_.c_str(), markdown_.length(), mdConfig );
 }
 
+//inline bool file_exists (const std::string& name) {
+std::string file_exists (std::string fname) 
+{
+    if (FILE *file = fopen(fname.c_str(), "r")) {
+        fclose(file);
+    }
+    else{
+        fname = "";
+    }
+    return fname;
+}
+
 std::string read_file(std::ifstream in_text )
 {
     //std::ifstream in_text (in_text);
@@ -221,7 +231,6 @@ std::string read_file(std::ifstream in_text )
 std::string write_file(std::string filename, int player, int vecIp4[])
 {
     //printf("Player = %d.%d.%d.%d", vecIp4[0],vecIp4[1],vecIp4[2],vecIp4[3]);
-    
     std::ostringstream stream;
     for (int i = 0; i < 4; i++)
     {
@@ -237,7 +246,6 @@ std::string write_file(std::string filename, int player, int vecIp4[])
 }
 
 // Run system command and capture output
-
 std::string exec(const char* cmd) {
     char buffer[128];
     std::string result = "";
@@ -287,7 +295,6 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
     return true;
 }
 
-
 std::vector<std::string> split (const std::string &s, char delim)
  {
     std::vector<std::string> result;
@@ -300,7 +307,6 @@ std::vector<std::string> split (const std::string &s, char delim)
 
     return result;
 }
-
 
 // Main code
 int main(int argc, char *args[])
@@ -326,17 +332,14 @@ int main(int argc, char *args[])
     static int iplayer = 4;
     static int mplayer = 4;
     int selected = 0;
-    bool full_debug = false; 
+    //bool full_debug = false; 
     bool done = false;
     bool show_ip_window = false;
-    bool sshot = false;
+    bool game_sshot = false;
     Mix_Chunk* gHigh = NULL;
 
 
     std::string input;
-
-
-
     // create a new struct to hold arguments.
     struct arguments arguments;
 
@@ -416,12 +419,10 @@ int main(int argc, char *args[])
     SDL_Texture* tex_screenshot;
     int my_image_width, my_image_height;
 
-
     // From 2.0.18: Enable native IME.
     #ifdef SDL_HINT_IME_SHOW_UI
       SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
     #endif
-
 
     // Create window with SDL_Renderer graphics context
     //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
@@ -442,18 +443,34 @@ int main(int argc, char *args[])
         return 0;
     }
 
-
-    if (sshot == LoadTextureFromFile("Assets/Images/screenshot.png", &tex_screenshot, my_image_width, my_image_height, bg_renderer))
+    if (file_exists("screenshot.png") !="")
     {
-        printf("Error: SDL_CreateWindow():");
-        return false;
+        LoadTextureFromFile("screenshot.png", &tex_screenshot, my_image_width, my_image_height, bg_renderer);
+        game_sshot = true;
+    } else if (file_exists("screenshot.jpg") !="")
+    {
+        LoadTextureFromFile("screenshot.jpg", &tex_screenshot, my_image_width, my_image_height, bg_renderer);
+        std::string bob = file_exists("screenshot.jpg");
+        game_sshot = true;
+        std::cout << "YES: " << bob << std::endl;
     }
+    else
+    {
+        printf("No Screenshot");
+
+    }
+
+//   // if (game_sshot == LoadTextureFromFile("screenshot.jpg", &tex_screenshot, my_image_width, my_image_height, bg_renderer))
+  //  {
+    //    printf("Error: No Screenshot");
+  ///      return false;
+  //  }
 
     //setup image
 
      //Initialize PNG loading
     int imgFlags = IMG_INIT_PNG;
-    if( !( IMG_Init( imgFlags ) & imgFlags ) )
+    if (!(IMG_Init(imgFlags)&imgFlags))
     {
         printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
         return false;
@@ -580,7 +597,7 @@ int main(int argc, char *args[])
                 // Left  Container    
                 {              
                 ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border);
-                std::string texts[4] = {"Game Instructions", "Screenshot" ,"License", "Debug Info"};
+                std::string texts[1] = {"Game Instructions"}; //,"Screenshot" ,"License", "Debug Info"
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();
@@ -597,13 +614,13 @@ int main(int argc, char *args[])
                     }                   
 
                 //  for (int i : texts)
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 1; i++)
                     {
                         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                         char label[128];
                         sprintf(label, texts[i].c_str());
-                        if (ImGui::Selectable(label, selected == i))
-                            selected = i;
+                       // if (ImGui::Selectable(label, selected == i))
+                          //  selected = i;
                     }
 
            
@@ -615,7 +632,6 @@ int main(int argc, char *args[])
                 {
                     ImGui::BeginGroup();
                     ImGui::BeginChild("item view", ImVec2(0,0));
-                    ImGui::Text("MyObject: %d", selected);
                     ImGui::Separator();
                     Mix_Volume(-1, 1);
                     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) 
@@ -631,9 +647,14 @@ int main(int argc, char *args[])
                            
                             if (selected == 0)
                             {
+                                if (game_sshot){
+                                    // Load screenshot image.
+                                    ImGui::Image((void*) tex_screenshot, ImVec2(my_image_width, my_image_height));
+                                }
                                 Markdown(readme);
                             }
-                            if (selected == 1)
+                            
+                            /*if (selected == 1)
                             {
                                 // Load screenshot image.
                                 ImGui::Text("ID: 0123456789");
@@ -659,7 +680,7 @@ int main(int argc, char *args[])
                                     ImGui::TextWrapped("ldd output: %s", ldd_debug.c_str());
                                     ImGui::Separator();
                                 }
-                            }
+                            }*/
                             ImGui::EndTabItem();
                             ImGui::Separator();                        
                         }
@@ -683,14 +704,14 @@ int main(int argc, char *args[])
 
             static char buf1[128] = "Edit Text Test";
             
-            static ImGui::VirtualKeyboardFlags virtualKeyboardFlags = ImGui::VirtualKeyboardFlags_ShowBaseBlock;
+            //static ImGui::VirtualKeyboardFlags virtualKeyboardFlags = ImGui::VirtualKeyboardFlags_ShowBaseBlock;
             //ShowKeypadBlock //ShowBaseBlock // ShowAllBlocks // ShowAllBlocks displays all the keyboard parts
             //SDL_StartTextInput() ;
 
             ImGui::InputText("##Input", buf1, IM_ARRAYSIZE(buf1));
             
 
-            ImGui::VirtualKeyboard(virtualKeyboardFlags, ImGui::KLL_QWERTY,ImGui::KPL_ISO);        
+            //ImGui::VirtualKeyboard(virtualKeyboardFlags, ImGui::KLL_QWERTY,ImGui::KPL_ISO);        
        
             
             // Creates space
