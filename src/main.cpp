@@ -239,8 +239,7 @@ int main(int argc, char *args[])
     bool show_ip_window = false;
     bool game_sshot = false;
     Mix_Chunk* gHigh = NULL;
-    std::cout <<  vec4i_svr1[0];
-
+   
     std::string input;
     // create a new struct to hold arguments.
     struct arguments arguments;
@@ -573,13 +572,13 @@ int main(int argc, char *args[])
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
             ImGui::Begin("Change IP Address", &show_ip_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 
-            static char buf1[128] = "Edit Text Test";
+            //static char buf1[128] = "Edit Text Test";
             
             //static ImGui::VirtualKeyboardFlags virtualKeyboardFlags = ImGui::VirtualKeyboardFlags_ShowBaseBlock;
             //ShowKeypadBlock //ShowBaseBlock // ShowAllBlocks // ShowAllBlocks displays all the keyboard parts
             //SDL_StartTextInput() ;
 
-            ImGui::InputText("##Input", buf1, IM_ARRAYSIZE(buf1));
+            //ImGui::InputText("##Input", buf1, IM_ARRAYSIZE(buf1));
             
             //ImGui::VirtualKeyboard(virtualKeyboardFlags, ImGui::KLL_QWERTY,ImGui::KPL_ISO);        
             
