@@ -13,9 +13,12 @@
 #include <SDL_mixer.h>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <algorithm>
 #include <argp.h>
+
+
 #include "utils.h"
 
 
@@ -24,39 +27,6 @@
 #endif
 
 
-// need to mention a version string.
-const char *argp_program_version = "Portmaster Game Options 0.0.12";
-
-// documentation string that will be displayed in the help section.
-static char doc[] = "This is an onging deveopment. Please feedback suggestions and changes via the github page. https://github.com/monkeyx-net/Imgui4Portmaster";
-
-// email address for bug reporting.
-const char *argp_program_bug_address = "tim@monkeyx.net";
-
-// argument list for doc. This will be displayed on --help
-static char args_doc[] = "-w Screen width, -p players etc";
-
-// cli argument availble options.
-static struct argp_option options[] = {
-    {"verbose", 'v', 0, 0, "Produce verbose output"},
-    {"width", 'w', "Width", 0,"Screen Width"},
-    {"height", 'h', "Height", 0,"Screen Height"},
-    {"scale", 's', "Scale", 0,"Screen Scale"},
-    {"players", 'p', "Players", 0,"Number of players 0 - 4. 0 players prevents showing the IP Dialogue"},
-    {"title", 't', "Game", 0,"Game Title"},
-    {0}
-};
-
-// define a struct to hold the arguments.
-struct arguments{
-    int  verbose;
-    char *args[1];
-    char *width;
-    char *height;
-    char *scale;
-    char *players;
-    char *title;
-};
 
 // define a function which will parse the args.
 static error_t parse_opt(int key, char *arg, struct argp_state *state){
@@ -235,25 +205,32 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
 // Main code
 int main(int argc, char *args[])
 {
-    //Read ip and instructions files before the starting the loop
-    //if (lfile_exists("screenshot.png") !="")
-    std::string ips_load=read_file(std::ifstream("Assets/ip_server.txt"));
-    std::string ip1_load=read_file(std::ifstream("Assets/ip1.txt"));
-    std::string ip2_load=read_file(std::ifstream("Assets/ip2.txt"));
-    std::string ip3_load=read_file(std::ifstream("Assets/ip3.txt"));
-    std::string ip4_load=read_file(std::ifstream("Assets/ip4.txt"));
-    std::string instructions=read_file(std::ifstream("Assets/instructions.txt"));
-    std::string readme=read_file(std::ifstream("Assets/README.md"));
-    std::string licence=read_file(std::ifstream("Assets/imgui-demo_LICENSE.txt"));
+
+    std::map<std::string, std::string> keyValueMap = readKeyValuePairsFromFile("Assets/config.txt");
+
+    // Assign each value to a separate variable
+    std::string ips_load = keyValueMap["server1_ip"];
+    std::string ip1_load = keyValueMap["client1_ip"];
+    std::string ip2_load = keyValueMap["client2_ip"];
+    std::string ip3_load = keyValueMap["client3_ip"];
+    std::string ip4_load = keyValueMap["client4_ip"];
+    std::string instructions=read_file(std::string("Assets/instructions.txt"));
+    std::string readme=read_file(std::string("Assets/README.md"));
+    std::string licence=read_file(std::string("Assets/imgui-demo_LICENSE.txt"));
     std::string file_debug = exec("file imgui-demo");
     std::string ldd_debug = exec("ldd imgui-demo");
-    std::string log_debug=read_file(std::ifstream("Assets/log.txt"));
+    //std::string log_debug=read_file(std::string("Assets/log.txt"));
     // Vector for IP Address Input  ImGui::DragInt4
-    static int vec4i_svr1[3];// = { 127, 0, 0, 1 };
-    static int vec4i_ply1[3];
-    static int vec4i_ply2[3];
-    static int vec4i_ply3[3];
-    static int vec4i_ply4[3]; 
+    int vec4i_svr1[4];
+    int vec4i_ply1[4];
+    int vec4i_ply2[4];
+    int vec4i_ply3[4];
+    int vec4i_ply4[4];
+    string_to_int_array(ips_load,vec4i_svr1);
+    string_to_int_array(ip1_load,vec4i_ply1);
+    string_to_int_array(ip2_load,vec4i_ply2);
+    string_to_int_array(ip3_load,vec4i_ply3);
+    string_to_int_array(ip4_load,vec4i_ply4);
     static int iplayer = 4;
     static int mplayer = 4;
     int selected = 0;
@@ -262,7 +239,7 @@ int main(int argc, char *args[])
     bool show_ip_window = false;
     bool game_sshot = false;
     Mix_Chunk* gHigh = NULL;
-
+    std::cout <<  vec4i_svr1[0];
 
     std::string input;
     // create a new struct to hold arguments.
@@ -278,7 +255,6 @@ int main(int argc, char *args[])
 
     // parse the cli arguments.
     argp_parse(&argp, argc, args, 0, 0, &arguments);
-
 
     // Do as function to process args?
     if (arguments.players)
@@ -305,34 +281,6 @@ int main(int argc, char *args[])
     //SDL_Renderer *renderer = NULL;
 
     //const ImU8  u8_min = 1, u8_max = 4;
-    
-    // Make this a function!
-    std::vector<std::string> v1 = split (ips_load, '.');
-    for (int i = 0; i < 4; i++)
-    {
-        vec4i_svr1[i] = atoi(v1[i].c_str());
-    }
-    std::vector<std::string> v2 = split (ip1_load, '.');
-    for (int i = 0; i < 4; i++)
-    {
-        vec4i_ply1[i] = atoi(v2[i].c_str());
-    }
-    std::vector<std::string> v3 = split (ip2_load, '.');
-    for (int i = 0; i < 4; i++)
-    {
-        vec4i_ply2[i] = atoi(v3[i].c_str());
-    }
-    std::vector<std::string> v4 = split (ip3_load, '.');
-    for (int i = 0; i < 4; i++)
-    {
-        vec4i_ply3[i] = atoi(v4[i].c_str());
-    }
-    std::vector<std::string> v5 = split (ip4_load, '.');
-    for (int i = 0; i < 4; i++)
-    {
-        vec4i_ply4[i] = atoi(v5[i].c_str());
-    }
- 
  
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
@@ -546,9 +494,7 @@ int main(int argc, char *args[])
                         sprintf(label, texts[i].c_str());
                        // if (ImGui::Selectable(label, selected == i))
                           //  selected = i;
-                    }
-
-           
+                    }          
                 ImGui::EndChild();
                 }
                 ImGui::SameLine();
@@ -635,9 +581,7 @@ int main(int argc, char *args[])
 
             ImGui::InputText("##Input", buf1, IM_ARRAYSIZE(buf1));
             
-
             //ImGui::VirtualKeyboard(virtualKeyboardFlags, ImGui::KLL_QWERTY,ImGui::KPL_ISO);        
-       
             
             // Creates space
             Markdown(instructions);
@@ -658,15 +602,6 @@ int main(int argc, char *args[])
                 ImGui::Separator();
                 ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip1_load.c_str());
                 ImGui::DragInt4("Player 1 IP", vec4i_ply1, 1, 1, 255);
-                
-                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                {
-                    ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
-                    ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
-                    done = true;
-                    show_ip_window =false;
-                    return 121;
-                }
             }
             if (iplayer==2)
             {
@@ -676,16 +611,6 @@ int main(int argc, char *args[])
                 ImGui::Separator();
                 ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip2_load.c_str());
                 ImGui::DragInt4("Player 2 IP", vec4i_ply2, 1, 1, 255);
-                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                {
-                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2); 
-                done = true;
-                show_ip_window =false;
-                return 122;
-                }
             }
             if (iplayer==3)
             {
@@ -698,20 +623,8 @@ int main(int argc, char *args[])
                 ImGui::Separator();
                 ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip3_load.c_str());
                 ImGui::DragInt4("Player 3 IP", vec4i_ply3, 1, 1, 255);
-                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                {
-                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2);
-                ip3_load = write_file("Assets/ip3.txt",iplayer, vec4i_ply3); 
-                done = true;
-                show_ip_window =false;
-                return 123;    
-                }
             }
-            if (iplayer==4)
-            {
+            if (iplayer==4){
                 ImGui::Separator();
                 ImGui::Text("Currently set Player 1 IP Address: %s", ip1_load.c_str());
                 ImGui::DragInt4("Player1 IP", vec4i_ply1, 1, 1, 255);
@@ -724,19 +637,25 @@ int main(int argc, char *args[])
                 ImGui::Separator();
                 ImGui::Text("Currently set Player %u IP Address: %s",iplayer, ip4_load.c_str());
                 ImGui::DragInt4("Player4 IP", vec4i_ply4, 1, 1, 255);
-                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
-                {
-                //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2);
-                ip3_load = write_file("Assets/ip3.txt",iplayer, vec4i_ply3); 
-                ip4_load = write_file("Assets/ip4.txt",iplayer, vec4i_ply4);
+            }
+                if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2))){
+                writeIPConfigToFile("Assets/config.txt", vec4i_svr1, vec4i_ply1, vec4i_ply2, vec4i_ply3, vec4i_ply4, 4);
                 done = true;
                 show_ip_window =false;
-                return 124;
+                switch (iplayer) {
+                case 1:
+                    return 121;
+                case 2:
+                    return 122;
+                case 3:
+                    return 123;
+                case 4:
+                    return 124;
+                case 5:
+                    return 125;
                 }
-            }
+                
+                }
             if (ImGui::Button("Close and no Save",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
             {
                 show_ip_window =false;
@@ -768,7 +687,7 @@ int main(int argc, char *args[])
     IMG_Quit();
     SDL_DestroyRenderer(bg_renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();
+    SDL_Quit(); 
 
     return 0;
 }

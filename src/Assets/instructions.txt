@@ -1,9 +1,3 @@
-## Navigation
+## Some Game
 
-Press the L1 Button to Start. Press L2 for game options
-
-Navigate D pad and sticks 
-
-A/B Select and Edit items
-
-Select Game Options for setting server/client IP address
+your text here see Assets/instructions.txt
