@@ -13,12 +13,10 @@
 #include <SDL_mixer.h>
 #include <fstream>
 #include <vector>
-#include <sstream>
 #include <iostream>
-#include <string>
 #include <algorithm>
 #include <argp.h>
-#include <fstream>
+#include "utils.h"
 
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
@@ -107,7 +105,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state){
 // initialize the argp struct. Which will be used to parse and use the args.
 static struct argp argp = {options, parse_opt, args_doc, doc};
 
-inline ImGui::MarkdownImageData ImageCallback( ImGui::MarkdownLinkCallbackData data_ );
+inline ImGui::MarkdownImageData ImageCallback(ImGui::MarkdownLinkCallbackData data_);
 
 static ImFont* H1 = NULL;
 static ImFont* H2 = NULL;
@@ -115,7 +113,7 @@ static ImFont* H3 = NULL;
 
 static ImGui::MarkdownConfig mdConfig;  
 
-inline ImGui::MarkdownImageData ImageCallback( ImGui::MarkdownLinkCallbackData data_ )
+inline ImGui::MarkdownImageData ImageCallback(ImGui::MarkdownLinkCallbackData data_)
 {
     // In your application you would load an image based on data_ input. Here we just use the imgui font texture.
     ImTextureID image = ImGui::GetIO().Fonts->TexID;
@@ -138,21 +136,21 @@ inline ImGui::MarkdownImageData ImageCallback( ImGui::MarkdownLinkCallbackData d
     return imageData;
 }
 
-void LoadFonts( float fontSize_ = 12.0f )
+void LoadFonts(float fontSize_ = 12.0f)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->Clear();
     // Base font
-    io.Fonts->AddFontFromFileTTF( "Assets/Fonts/Roboto-Medium.ttf", fontSize_ );
+    io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", fontSize_);
     // Bold headings H2 and H3
-    H2 = io.Fonts->AddFontFromFileTTF( "Assets/Fonts/Roboto-Medium.ttf", fontSize_ );
+    H2 = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", fontSize_);
     H3 = mdConfig.headingFormats[ 1 ].font;
     // bold heading H1
     float fontSizeH1 = fontSize_ * 1.1f;
-    H1 = io.Fonts->AddFontFromFileTTF( "Assets/Fonts/Roboto-Medium.ttf", fontSizeH1 );
+    H1 = io.Fonts->AddFontFromFileTTF( "Assets/Fonts/Roboto-Medium.ttf", fontSizeH1);
 }
 
-void ExampleMarkdownFormatCallback( const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_ )
+void ExampleMarkdownFormatCallback(const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_)
 {
     // Call the default first so any settings can be overwritten by our implementation.
     // Alternatively could be called or not called in a switch statement on a case by case basis.
@@ -184,7 +182,7 @@ void ExampleMarkdownFormatCallback( const ImGui::MarkdownFormatInfo& markdownFor
     }
 }
 
-void Markdown( const std::string& markdown_ )
+void Markdown(const std::string& markdown_)
 {
     // You can make your own Markdown function with your prefered string container and markdown config.
     // > C++14 can use ImGui::MarkdownConfig mdConfig{ LinkCallback, NULL, ImageCallback, ICON_FA_LINK, { { H1, true }, { H2, true }, { H3, false } }, NULL };
@@ -200,68 +198,6 @@ void Markdown( const std::string& markdown_ )
     ImGui::Markdown( markdown_.c_str(), markdown_.length(), mdConfig );
 }
 
-//inline bool file_exists (const std::string& name) {
-std::string file_exists (std::string fname) 
-{
-    if (FILE *file = fopen(fname.c_str(), "r")) {
-        fclose(file);
-    }
-    else{
-        fname = "";
-    }
-    return fname;
-}
-
-std::string read_file(std::ifstream in_text )
-{
-    //std::ifstream in_text (in_text);
-    std::string line;
-    std::string all_lines;
-    if (in_text.is_open())
-    {
-        while ( getline (in_text,line) )
-        {
-            all_lines += line + "\n";
-        }
-    in_text.close();
-  }
-  return all_lines;
-}
-
-std::string write_file(std::string filename, int player, int vecIp4[])
-{
-    //printf("Player = %d.%d.%d.%d", vecIp4[0],vecIp4[1],vecIp4[2],vecIp4[3]);
-    std::ostringstream stream;
-    for (int i = 0; i < 4; i++)
-    {
-        if (i) stream << '.';
-        stream << vecIp4[i];
-    }
-    std::ofstream file(filename);
-    std::string ip_string = stream.str();
-    file << ip_string;
-    file.close();
-    //ips_load = ip_string;
-    return ip_string;
-}
-
-// Run system command and capture output
-std::string exec(const char* cmd) {
-    char buffer[128];
-    std::string result = "";
-    FILE* pipe = popen(cmd, "r");
-    if (!pipe) throw std::runtime_error("popen() failed!");
-    try {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
-            result += buffer;
-        }
-    } catch (...) {
-        pclose(pipe);
-        throw;
-    }
-    pclose(pipe);
-    return result;
-}
 
 
 // Load texture for IMGUI
@@ -295,34 +231,23 @@ bool LoadTextureFromFile(const char* filename, SDL_Texture** texture_ptr, int& w
     return true;
 }
 
-std::vector<std::string> split (const std::string &s, char delim)
- {
-    std::vector<std::string> result;
-
-    std::stringstream ss (s);
-    std::string item;
-    while (getline (ss, item, delim)) {
-        result.push_back (item);
-    }
-
-    return result;
-}
 
 // Main code
 int main(int argc, char *args[])
 {
-        //Read ip and instructions files before the starting the loop
-    std::string ips_load=read_file(std::ifstream("ip_server.txt"));
-    std::string ip1_load=read_file(std::ifstream("ip1.txt"));
-    std::string ip2_load=read_file(std::ifstream("ip2.txt"));
-    std::string ip3_load=read_file(std::ifstream("ip3.txt"));
-    std::string ip4_load=read_file(std::ifstream("ip4.txt"));
-    std::string instructions=read_file(std::ifstream("instructions.txt"));
-    std::string readme=read_file(std::ifstream("README.md"));
-    std::string licence=read_file(std::ifstream("imgui-demo_LICENSE.txt"));
+    //Read ip and instructions files before the starting the loop
+    //if (lfile_exists("screenshot.png") !="")
+    std::string ips_load=read_file(std::ifstream("Assets/ip_server.txt"));
+    std::string ip1_load=read_file(std::ifstream("Assets/ip1.txt"));
+    std::string ip2_load=read_file(std::ifstream("Assets/ip2.txt"));
+    std::string ip3_load=read_file(std::ifstream("Assets/ip3.txt"));
+    std::string ip4_load=read_file(std::ifstream("Assets/ip4.txt"));
+    std::string instructions=read_file(std::ifstream("Assets/instructions.txt"));
+    std::string readme=read_file(std::ifstream("Assets/README.md"));
+    std::string licence=read_file(std::ifstream("Assets/imgui-demo_LICENSE.txt"));
     std::string file_debug = exec("file imgui-demo");
     std::string ldd_debug = exec("ldd imgui-demo");
-    std::string log_debug=read_file(std::ifstream("log.txt"));
+    std::string log_debug=read_file(std::ifstream("Assets/log.txt"));
     // Vector for IP Address Input  ImGui::DragInt4
     static int vec4i_svr1[3];// = { 127, 0, 0, 1 };
     static int vec4i_ply1[3];
@@ -443,14 +368,14 @@ int main(int argc, char *args[])
         return 0;
     }
 
-    if (file_exists("screenshot.png") !="")
+    if (lfile_exists("screenshot.png") !="")
     {
         LoadTextureFromFile("screenshot.png", &tex_screenshot, my_image_width, my_image_height, bg_renderer);
         game_sshot = true;
-    } else if (file_exists("screenshot.jpg") !="")
+    } else if (lfile_exists("screenshot.jpg") !="")
     {
         LoadTextureFromFile("screenshot.jpg", &tex_screenshot, my_image_width, my_image_height, bg_renderer);
-        std::string bob = file_exists("screenshot.jpg");
+        std::string bob = lfile_exists("screenshot.jpg");
         game_sshot = true;
         std::cout << "YES: " << bob << std::endl;
     }
@@ -601,13 +526,13 @@ int main(int argc, char *args[])
                 //ImGui::SetWindowFocus();   
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();
-                 if (ImGui::Button("Start Game")|| (ImGui::IsKeyPressed(ImGuiKey_GamepadStart)))
+                 if (ImGui::Button("Start Game",ImVec2(145,50))|| (ImGui::IsKeyPressed(ImGuiKey_GamepadStart)))
                     {
                         done = true;
                         show_ip_window = false;
                         return 0;
                     }
-                if (ImGui::Button("Game Options")|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
+                if (ImGui::Button("Game Options",ImVec2(145,50))|| (ImGui::IsKeyPressed(ImGuiKey_F3)))
                     {
                         show_ip_window = true;
                         //return 0;
@@ -736,8 +661,8 @@ int main(int argc, char *args[])
                 
                 if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                 {
-                    ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                    ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
+                    ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
+                    ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
                     done = true;
                     show_ip_window =false;
                     return 121;
@@ -754,9 +679,9 @@ int main(int argc, char *args[])
                 if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                 {
                 //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2); 
+                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2); 
                 done = true;
                 show_ip_window =false;
                 return 122;
@@ -776,10 +701,10 @@ int main(int argc, char *args[])
                 if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                 {
                 //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
+                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2);
+                ip3_load = write_file("Assets/ip3.txt",iplayer, vec4i_ply3); 
                 done = true;
                 show_ip_window =false;
                 return 123;    
@@ -802,11 +727,11 @@ int main(int argc, char *args[])
                 if (ImGui::Button("Save IP Address & Start Game",ImVec2(347,50))|| (ImGui::IsKeyPressed(ImGuiKey_F2)))
                 {
                 //printf("%d.%d.%d.%d", vec4i_ply1[0],vec4i_ply1[1],vec4i_ply1[2],vec4i_ply1[3]);
-                ips_load = write_file("ip_server.txt",iplayer, vec4i_svr1);
-                ip1_load = write_file("ip1.txt",iplayer, vec4i_ply1);
-                ip2_load = write_file("ip2.txt",iplayer, vec4i_ply2);
-                ip3_load = write_file("ip3.txt",iplayer, vec4i_ply3); 
-                ip4_load = write_file("ip4.txt",iplayer, vec4i_ply4);
+                ips_load = write_file("Assets/ip_server.txt",iplayer, vec4i_svr1);
+                ip1_load = write_file("Assets/ip1.txt",iplayer, vec4i_ply1);
+                ip2_load = write_file("Assets/ip2.txt",iplayer, vec4i_ply2);
+                ip3_load = write_file("Assets/ip3.txt",iplayer, vec4i_ply3); 
+                ip4_load = write_file("Assets/ip4.txt",iplayer, vec4i_ply4);
                 done = true;
                 show_ip_window =false;
                 return 124;
