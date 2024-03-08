@@ -259,7 +259,7 @@ int main(int argc, char *args[])
     if (arguments.players)
     {
      int ptemp = atoi(arguments.players);
-     if (ptemp >0 && ptemp <5)
+     if (ptemp >=0 && ptemp <5)
         {
          //std::cout << "Players " << players;
          mplayer=ptemp;
@@ -593,9 +593,12 @@ int main(int argc, char *args[])
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
             //ImGui::SetCursorPos(ImVec2(0,350));   // Place Button
+             if (iplayer==0)
+            {
             ImGui::Text("Currently set Server IP Address: %s",ips_load.c_str());
             ImGui::Text("Set Server IP Adress:-");
             ImGui::DragInt4("Server", vec4i_svr1, 1, 1, 255);
+            }
             if (iplayer==1)
             {
                 ImGui::Separator();
@@ -642,6 +645,8 @@ int main(int argc, char *args[])
                 done = true;
                 show_ip_window =false;
                 switch (iplayer) {
+                case 0:
+                    return 120;
                 case 1:
                     return 121;
                 case 2:
@@ -650,8 +655,6 @@ int main(int argc, char *args[])
                     return 123;
                 case 4:
                     return 124;
-                case 5:
-                    return 125;
                 }
                 
                 }
