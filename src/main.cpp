@@ -322,21 +322,12 @@ int main(int argc, char *args[])
     } else if (lfile_exists("screenshot.jpg") !="")
     {
         LoadTextureFromFile("screenshot.jpg", &tex_screenshot, my_image_width, my_image_height, bg_renderer);
-        std::string bob = lfile_exists("screenshot.jpg");
         game_sshot = true;
-        std::cout << "YES: " << bob << std::endl;
     }
     else
     {
-        printf("No Screenshot");
-
+        std::cout << "No Screenshot" << std::endl;
     }
-
-//   // if (game_sshot == LoadTextureFromFile("screenshot.jpg", &tex_screenshot, my_image_width, my_image_height, bg_renderer))
-  //  {
-    //    printf("Error: No Screenshot");
-  ///      return false;
-  //  }
 
     //setup image
 

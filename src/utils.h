@@ -46,6 +46,9 @@ static struct argp_option options[] = {
     {"scale", 's', "Scale", 0,"Screen Scale"},
     {"players", 'p', "Players", 0,"Number of players 0 - 4. 0 show server only.\nCreates escape codes 120 to use server ip\nPlayers 1-4 are 121-124"},
     {"title", 't', "Game", 0,"Game Title"},
+    {"user", 'u', "User", 0,"User Name"},
+    {"other", 'o', "Other", 0,"Other text"},
+
     {0}
 };
 
@@ -58,6 +61,8 @@ struct arguments{
     char *scale;
     char *players;
     char *title;
+    char *user;
+    char *other;
 };
 
 
